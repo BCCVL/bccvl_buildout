@@ -1,0 +1,16 @@
+buildout.cfg
+.ropeproject
+DATA
+bin
+.coverage
+.installed.cfg
+.mr.developer.cfg
+PYSMELLTAGS
+PYSMELLTAGS.stdlib
+develop-eggs
+parts
+var
+picked-versions.cfg
+eggs
+etc
+moai.log

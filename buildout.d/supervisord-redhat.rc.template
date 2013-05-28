@@ -1,0 +1,63 @@
+
+#!/bin/sh
+# RedHat startup script for a supervisor instance
+#
+# chkconfig: 2345 99 01
+# description: ${supervisord-rc-redhat:name}
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+supervisorctl="${buildout:directory}/bin/supervisorctl"
+supervisord="${buildout:directory}/bin/supervisord"
+name="${supervisord-rc-redhat:name}"
+
+[ -f $supervisord ] || exit 1
+[ -f $supervisorctl ] || exit 1
+
+RETVAL=0
+
+start() {
+    echo -n "Starting $name: "
+    $supervisord
+    RETVAL=$?
+    echo
+    return $RETVAL
+}
+
+stop() {
+    echo -n "Stopping $name: "
+    $supervisorctl stop all
+    $supervisorctl shutdown
+    RETVAL=$?
+    echo
+    return $RETVAL
+}
+
+status() {
+    $supervisorctl status
+    return $?
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage: /etc/init.d/${name}
+{start|stop|reload|force-reload|restart}"
+	exit 1
+
+esac
+
+exit $REVAL

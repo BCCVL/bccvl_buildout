@@ -1,0 +1,18 @@
+
+[buildout]
+extends =
+    buildout.d/development.cfg
+
+[instance-settings]
+user = admin:admin
+eggs +=
+    readline
+    ipdb
+
+[users]
+main =
+cache =
+transform =
+balancer =
+zope =
+supervisor =
