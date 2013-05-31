@@ -8,11 +8,6 @@
 # NameVirtualHost *:80
 #
 
-Alias /seqcari ${seqcari:web-directory}
-<Directory ${seqcari:web-directory}>
-    Order allow,deny
-    Allow from all
-</Directory>
 
 <VirtualHost *:80>
     ServerName ${site:hostname}
@@ -30,7 +25,7 @@ Alias /seqcari ${seqcari:web-directory}
     RequestHeader set SHIB_PERSON_COMMONNAME %{displayName}e
     RequestHeader set SHIB_INETORGPERSON_MAIL %{mail}e
     # TODO add rewrites for supervisord and haproxy
-    RewriteCond %{REQUEST_URI} !^/(oai|index.html|bccvl.jpg|seqcari|$)
+    RewriteCond %{REQUEST_URI} !^/(oai|index.html|bccvl.jpg|$)
     RewriteRule ^/(.*)$ http://${hosts:cache}:${ports:cache}/VirtualHostBase/http/%{SERVER_NAME}:80/${plone-sites:main}/VirtualHostRoot/$1 [L,P]
     # Rewrite to access oai
     RewriteRule ^/oai(.*)$ http://${hosts:moai}:${ports:moai}/oai$1 [L,P]
@@ -107,10 +102,8 @@ Alias /seqcari ${seqcari:web-directory}
     RewriteRule ^/_queue/(.*)$ http://${hosts:queue}:${ports:queue}/$1 [L,P]
     # Allow access to solr
     RewriteRule ^/solr/(.*)$ ajp://localhost:8009/solr/$1 [L,P]
-    # Seqcari zip tool
-    RewriteRule ^/seqcari/expresszip(.*)$ http://${seqcari:host}:${seqcari:port}/expresszip$1 [L,P]
     # Let Shibboleth, server status,  pass through normally
-    RewriteCond %{REQUEST_URI} !^/(shibboleth-sp|Shibboleth.sso|server-(status|info)|seqcari)
+    RewriteCond %{REQUEST_URI} !^/(shibboleth-sp|Shibboleth.sso|server-(status|info))
     # and proxy everything else to our Virtulahost in Zope
     RewriteRule ^/(.*)$ http://${hosts:cache}:${ports:cache}/VirtualHostBase/https/%{SERVER_NAME}:443/${plone-sites:main}/VirtualHostRoot/$1 [L,P]
 
