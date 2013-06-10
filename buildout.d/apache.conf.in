@@ -14,9 +14,9 @@
     ServerAdmin eresearch-services@griffith.edu.au
 
     <Location />
-        AuthType shibboleth
-        ShibRequestSetting requireSession Off
-        Require shibboleth
+        #AuthType shibboleth
+        #ShibRequestSetting requireSession Off
+        #Require shibboleth
     </Location>
 
     ProxyRequests Off
@@ -33,6 +33,8 @@
 </VirtualHost>
 
 <VirtualHost *:443>
+ SSLCertificateFile /etc/apache2/ssl/apache.crt
+ SSLCertificateKeyFile /etc/apache2/ssl/apache.key
 
     ServerName ${site:hostname}
     ServerAdmin eresearch-services@griffith.edu.au
@@ -113,65 +115,58 @@
         #
         SSLRequireSSL
 
-        AuthType shibboleth
-        ShibRequestSetting requireSession Off
-        Require shibboleth
+        #AuthType shibboleth
+        #ShibRequestSetting requireSession Off
+        #Require shibboleth
     </Location>
 
     <Location /oai>
         # don't enforce shibboleth auth for oai
-        ShibRequestSetting requireSession Off
-        Require shibboleth
-        ProxyPassReverse http://${hosts:moai}:${ports:moai}
+        #ShibRequestSetting requireSession Off
+        #Require shibboleth
+        #ProxyPassReverse http://${hosts:moai}:${ports:moai}
     </Location>
 
     <Location /_supervisor/>
         # enforce shibboleth auth for supervisor
-        ShibRequestSetting requireSession On
-        ShibRequireAll On
-        ShibAccessControl ${buildout:directory}/etc/accesscontrol.xml
-        Require shibboleth
+        #ShibRequestSetting requireSession On
+        #ShibRequireAll On
+        #ShibAccessControl ${buildout:directory}/etc/accesscontrol.xml
+        #Require shibboleth
         ProxyPassReverse http://${hosts:supervisor}:${ports:supervisor}
     </Location>
 
     <Location /_haproxy>
         # /_haproxy?stats
         # /_haproxy?ping
-        ShibRequestSetting requireSession On
-        ShibRequireAll On
-        ShibAccessControl ${buildout:directory}/etc/accesscontrol.xml
-        Require shibboleth
+        #ShibRequestSetting requireSession On
+        #ShibRequireAll On
+        #ShibAccessControl ${buildout:directory}/etc/accesscontrol.xml
+        #Require shibboleth
         ProxyPassReverse http://${hosts:balancer}:${ports:balancer}
     </Location>
 
     <Location /_zope>
-        ShibRequestSetting requireSession On
-        ShibRequireAll On
-        ShibAccessControl ${buildout:directory}/etc/accesscontrol.xml
-        Require shibboleth
-    </Location>
-
-    <Location /_zope>
-        ShibRequestSetting requireSession On
-        ShibRequireAll On
-        ShibAccessControl ${buildout:directory}/etc/accesscontrol.xml
-        Require shibboleth
+        #ShibRequestSetting requireSession On
+        #ShibRequireAll On
+        #ShibAccessControl ${buildout:directory}/etc/accesscontrol.xml
+        #Require shibboleth
     </Location>
 
     <Location /_queue>
         # allow RabbitMQ access
-        ShibRequestSetting requireSession On
-        ShibRequireAll On
-        ShibAccessControl ${buildout:directory}/etc/accesscontrol.xml
-        Require shibboleth
+        #ShibRequestSetting requireSession On
+        #ShibRequireAll On
+        #ShibAccessControl ${buildout:directory}/etc/accesscontrol.xml
+        #Require shibboleth
         ProxyPassReverse http://${hosts:queue}:${ports:queue}
     </Location>
 
     <Location /_zeo>
-        ShibRequestSetting requireSession On
-        ShibRequireAll On
-        ShibAccessControl ${buildout:directory}/etc/accesscontrol.xml
-        Require shibboleth
+        #ShibRequestSetting requireSession On
+        #ShibRequireAll On
+        #ShibAccessControl ${buildout:directory}/etc/accesscontrol.xml
+        #Require shibboleth
         ProxyPassReverse http://${hosts:zeoserver}:${ports:zeomonitor}
     </Location>
 
@@ -181,10 +176,10 @@
     </LocationMatch>
 
     <LocationMatch /solr/(?!select)>
-        ShibRequestSetting requireSession On
-        ShibRequireAll On
-        ShibAccessControl ${buildout:directory}/etc/accesscontrol.xml
-        Require shibboleth
+        #ShibRequestSetting requireSession On
+        #ShibRequireAll On
+        #ShibAccessControl ${buildout:directory}/etc/accesscontrol.xml
+        #Require shibboleth
         ProxyPassReverse ajp://localhost:8009/
     </LocationMatch>
 
