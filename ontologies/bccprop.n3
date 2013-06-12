@@ -18,9 +18,9 @@ bccprop:attribution a owl:DataProperty ;
     .
 
 bccprop:datagenre a owl:ObjectProperty ;
-    rdfs:label "Data Genrce" ;
-    rdfs:comment "BCCVL Data Genrce" ;
-    rdfs:range bccvocab:DataGenrce ;
+    rdfs:label "Data Genre" ;
+    rdfs:comment "BCCVL Data Genre" ;
+    rdfs:range bccvocab:DataGenre ;
     .
 
 bccprop:datatype a owl:ObjectProperty ;

@@ -956,7 +956,7 @@ z3c:FORVocabulary a z3c:Vocabulary ;
 
 :bccpropDataGenre a fresnel:Format ;
     fresnel:propertyFormatDomain bccprop:datagenre ;
-    fresnel:label "Data Genrce" ;
+    fresnel:label "Data Genre" ;
     z3c:field z3c:DataGenreField ;
     fresnel:group :DefaultGroup ;
     .
