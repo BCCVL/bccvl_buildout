@@ -1,3 +1,15 @@
 syntax: glob
 
+bin
+etc
+src
+var
 .git
+eggs
+parts
+develop-eggs
+bin/buildout
+buildout.cfg
+.installed.cfg
+.mr.developer.cfg
+picked-versions.cfg
