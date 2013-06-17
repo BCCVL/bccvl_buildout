@@ -1,18 +1,12 @@
-
 [buildout]
 extends =
     buildout.d/development.cfg
+
+newest = false
+index = http://mirror.rcs.griffith.edu.au:3143/root/pypi/+simple
 
 [instance-settings]
 user = admin:admin
 eggs +=
     readline
     ipdb
-
-[users]
-main =
-cache =
-transform =
-balancer =
-zope =
-supervisor =
