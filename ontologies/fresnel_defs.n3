@@ -33,7 +33,7 @@
 @prefix z3c: <http://namespaces.zope.org/z3c/form#> .
 @prefix cvocab: <http://namespaces.griffith.edu.au/collection_vocab#> .
 @prefix bccprop: <http://namespaces.bccvl.org.au/prop#> .
-@prefix bccvocab: <http://namespaces.terranova.org.au/vocab#> .
+@prefix bccvocab: <http://namespaces.bccvl.org.au/vocab#> .
 
 # Lenses:
 #    classLensDomain    ... 0..n
@@ -129,6 +129,36 @@
 #     Related Informaton (free tetx)
 #     *Date
 
+:FutureClimateDataSetLens a fresnel:Lens ;
+    rdfs:label "Future Climate Data Set" ;
+    fresnel:classLensDomain bccvocab:DataGenreFC;
+    fresnel:group :DefaultGroup ;
+    #fresnel:showProperties ( fresnel:allProperties ) ;
+    fresnel:hideProperties ( rdf:type ) ;
+    fresnel:showProperties ( 
+
+                             # related info:
+                             [ rdf:type z3c:PropertyGroup ;
+                               z3c:propertyGroup :FutureClimateDataSetInfoFieldSet ;
+                             ]
+                            ) ;
+    .
+
+:SpeciesOccurrenceDataSetLens a fresnel:Lens ;
+    rdfs:label "Species Occurrence Data Set" ;
+    fresnel:classLensDomain bccvocab:DataGenreSO;
+    fresnel:group :DefaultGroup ;
+    #fresnel:showProperties ( fresnel:allProperties ) ;
+    fresnel:hideProperties ( rdf:type ) ;
+    fresnel:showProperties ( 
+
+                             # related info:
+                             [ rdf:type z3c:PropertyGroup ;
+                               z3c:propertyGroup :SpeciesOccurrenceDataSetInfoFieldSet ;
+                             ]
+                            ) ;
+    .
+
 :ItemLens a fresnel:Lens ;
     rdfs:label "Data Set" ;
     fresnel:classLensDomain cvocab:Item ;
@@ -154,15 +184,15 @@
     rdfs:comment "Basic information about the dataset record" ;
     fresnel:group :DefaultGroup ;
     fresnel:showProperties (
-           bccprop:location # TODO: does not exist
-           dcterms:creator #owner
-           dcterms:publisher
-           #manager
-           dcterms:available
-           vivo:hasSubjectArea
-           dcterms:temporal
-           dcterms:spatial
-           bccprop:attribution
+#           bccprop:location # TODO: does not exist
+#           dcterms:creator #owner
+#           dcterms:publisher
+#           #manager
+#           dcterms:available
+#           vivo:hasSubjectArea
+#           dcterms:temporal
+#           dcterms:spatial
+#           bccprop:attribution
        ) ;
     .
 
@@ -232,7 +262,7 @@
 
 
 :DataSetRelatedInfoFieldSet a z3c:PropertyGroup ;
-    rdfs:label "Related Information" ;
+    rdfs:label "Dataset Information" ;
     rdfs:comment "Basic information about the dataset" ;
     fresnel:group :DefaultGroup ;
     fresnel:showProperties (
@@ -246,7 +276,35 @@
     ) ;
     .
 
+:FutureClimateDataSetInfoFieldSet a z3c:PropertyGroup ;
+    rdfs:label "Future Climate Information" ;
+    rdfs:comment "Basic information about the dataset" ;
+    fresnel:group :DefaultGroup ;
+    fresnel:showProperties (
+#        bccprop:datagenre
+#        bccprop:datatype
+#        bccprop:specieslayer
+        bccprop:format
+        dcterms:format
+        bccprop:resolution
+        bccprop:resolutionother
+    ) ;
+    .
 
+:SpeciesOccurrenceDataSetInfoFieldSet a z3c:PropertyGroup ;
+    rdfs:label "Species Occurrence Information" ;
+    rdfs:comment "Basic information about the dataset" ;
+    fresnel:group :DefaultGroup ;
+    fresnel:showProperties (
+#        bccprop:datagenre
+#        bccprop:datatype
+#        bccprop:specieslayer
+        bccprop:format
+        dcterms:format
+#        bccprop:resolution
+#        bccprop:resolutionother
+    ) ;
+    .
 
 # experimental field definition for MultiValued object field...
 #  ... need to get the Lens in somehow and still stay as compatible as possible to the Fresnel sublens approach
@@ -963,7 +1021,7 @@ z3c:FORVocabulary a z3c:Vocabulary ;
 
 :bccpropDataType a fresnel:Format ;
     fresnel:propertyFormatDomain bccprop:datatype ;
-    fresnel:label "Type fo Dataset" ;
+    fresnel:label "Type of Dataset" ;
     z3c:field z3c:DataSetTypeField ;
     fresnel:group :DefaultGroup ;
     .
