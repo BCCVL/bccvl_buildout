@@ -25,7 +25,7 @@
     RequestHeader set SHIB_PERSON_COMMONNAME %{displayName}e
     RequestHeader set SHIB_INETORGPERSON_MAIL %{mail}e
     # TODO add rewrites for supervisord and haproxy
-    RewriteCond %{REQUEST_URI} !^/(oai|index.html|bccvl.jpg|$)
+    RewriteCond %{REQUEST_URI} !^/(oai)
     RewriteRule ^/(.*)$ http://${hosts:cache}:${ports:cache}/VirtualHostBase/http/%{SERVER_NAME}:80/${plone-sites:main}/VirtualHostRoot/$1 [L,P]
     # Rewrite to access oai
     RewriteRule ^/oai(.*)$ http://${hosts:moai}:${ports:moai}/oai$1 [L,P]
