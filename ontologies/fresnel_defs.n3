@@ -179,6 +179,22 @@
                             ) ;
     .
 
+:FileLens a fresnel:Lens ;
+    rdfs:label "File" ;
+    fresnel:classLensDomain cvocab:File ;
+    fresnel:group :DefaultGroup ;
+    fresnel:hideProperties ( rdf:type ) ;
+    fresnel:showProperties ( 
+                             dcterms:title
+                             dcterms:description
+
+                             # related info:
+                             [ rdf:type z3c:PropertyGroup ;
+                               z3c:propertyGroup :DataSetRelatedInfoFieldSet ;
+                             ]
+                            ) ;
+    .
+    
 :DataSetMetadataFieldSet a z3c:PropertyGroup ;
     rdfs:label "Dataset Metadata" ;
     rdfs:comment "Basic information about the dataset record" ;

@@ -61,6 +61,10 @@ bccvocab:SpeciesLayerA a bccvocab:SpeciesLayer ;
     rdfs:label "Abundance (Presence/Absence)" ;
     .
 
+bccvocab:SpeciesLayerX a bccvocab:SpeciesLayer ;
+    rdfs:label "Absence" ;
+    .
+
 bccvocab:DataSetFormatCSV a bccvocab:DataSetFormat ;
     rdfs:label "CSV" ;
     .
