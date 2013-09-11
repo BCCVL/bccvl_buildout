@@ -30,14 +30,7 @@
     # Rewrite to access oai
     RewriteRule ^/oai(.*)$ http://${hosts:moai}:${ports:moai}/oai$1 [L,P]
     # Rewrite to access visualiser
-    RewriteRule ^/_visualiser/(.*)$ http://${hosts:visualiser}:${ports:visualiser}/$1 [L,P]
-
-    <Location /_visualiser>
-        RequestHeader add X-Vhm-Host http://${site:hostname}
-        RequestHeader add X-Vhm-Root /_visualiser
-
-        ProxyPassReverse http://${hosts:visualiser}:${ports:visualiser}
-    </Location>
+    RewriteRule ^/_visualiser/(.*)$ http://${hosts:visualiser}:${ports:visualiser}/VirtualHostBase/http/%{SERVER_NAME}:80/VirtualHostRoot/_vh__visualiser/$1 [L,P]
 
 </VirtualHost>
 
@@ -114,7 +107,7 @@
     # Allow access to solr
     RewriteRule ^/solr/(.*)$ ajp://localhost:8009/solr/$1 [L,P]
     # Rewrite to access visualiser
-    RewriteRule ^/_visualiser/(.*)$ http://${hosts:visualiser}:${ports:visualiser}/$1 [L,P]
+    RewriteRule ^/_visualiser/(.*)$ http://${hosts:visualiser}:${ports:visualiser}/VirtualHostBase/https/%{SERVER_NAME}:443/VirtualHostRoot/_vh__visualiser/$1 [L,P]
     # Let Shibboleth, server status,  pass through normally
     RewriteCond %{REQUEST_URI} !^/(shibboleth-sp|Shibboleth.sso|server-(status|info))
     # and proxy everything else to our Virtulahost in Zope
@@ -193,12 +186,5 @@
         #Require shibboleth
         ProxyPassReverse ajp://localhost:8009/
     </LocationMatch>
-
-    <Location /_visualiser>
-        RequestHeader add X-Vhm-Host https://${site:hostname}
-        RequestHeader add X-Vhm-Root /_visualiser
-
-        ProxyPassReverse http://${hosts:visualiser}:${ports:visualiser}
-    </Location>
 
 </VirtualHost>
