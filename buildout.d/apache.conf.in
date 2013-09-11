@@ -33,6 +33,9 @@
     RewriteRule ^/_visualiser/(.*)$ http://${hosts:visualiser}:${ports:visualiser}/$1 [L,P]
 
     <Location /_visualiser>
+        RequestHeader add X-Vhm-Host http://${site:hostname}
+        RequestHeader add X-Vhm-Root /_visualiser
+
         ProxyPassReverse http://${hosts:visualiser}:${ports:visualiser}
     </Location>
 
@@ -192,6 +195,9 @@
     </LocationMatch>
 
     <Location /_visualiser>
+        RequestHeader add X-Vhm-Host https://${site:hostname}
+        RequestHeader add X-Vhm-Root /_visualiser
+
         ProxyPassReverse http://${hosts:visualiser}:${ports:visualiser}
     </Location>
 
