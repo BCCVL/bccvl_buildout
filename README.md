@@ -31,5 +31,26 @@ Finally, run boostrap then buildout:
 
     $ python bootstrap.py
     $ ./bin/buildout
-    
 
+
+Running tests:
+--------------
+
+Buildout also generates a script to run all configured tests:
+
+    $ ./bin/test
+
+The test runner accepts a couple of different options. Most useful are
+probably --layer=LAYERNAME and -t TESTNAME. LAYERNAME and TESTNAME are
+interpreted as regular expressions and can be used to run only specifc
+tests instead of the whole test suite.
+
+Use --list-tests to see all test layers and test names.
+
+To generate test result output in an xml format that can be read by
+Jenkins use:
+
+    $ ./bin/jenkins-test
+
+The Jenkins test runner is essentially the same as the normal test
+runner, and accepts the same command line parameters.
