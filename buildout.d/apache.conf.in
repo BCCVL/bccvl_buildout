@@ -25,12 +25,14 @@
     RequestHeader set SHIB_PERSON_COMMONNAME %{displayName}e
     RequestHeader set SHIB_INETORGPERSON_MAIL %{mail}e
     # TODO add rewrites for supervisord and haproxy
-    RewriteCond %{REQUEST_URI} !((^/(oai))|(^/(_visualiser)))
+    RewriteCond %{REQUEST_URI} !((^/(oai))|(^/(_visualiser))|(^/(_data_mover)))
     RewriteRule ^/(.*)$ http://${hosts:cache}:${ports:cache}/VirtualHostBase/http/%{SERVER_NAME}:80/${plone-sites:main}/VirtualHostRoot/$1 [L,P]
     # Rewrite to access oai
     RewriteRule ^/oai(.*)$ http://${hosts:moai}:${ports:moai}/oai$1 [L,P]
     # Rewrite to access visualiser
     RewriteRule ^/_visualiser/(.*)$ http://${hosts:visualiser}:${ports:visualiser}/VirtualHostBase/http/%{SERVER_NAME}:80/VirtualHostRoot/_vh__visualiser/$1 [L,P]
+    # Rewrite to access data_mover
+    RewriteRule ^/_data_mover/(.*)$ http://${hosts:data_mover}:${ports:data_mover}/VirtualHostBase/http/%{SERVER_NAME}:80/VirtualHostRoot/_vh__data_mover/$1 [L,P]
 
 </VirtualHost>
 
@@ -108,6 +110,8 @@
     RewriteRule ^/solr/(.*)$ ajp://localhost:8009/solr/$1 [L,P]
     # Rewrite to access visualiser
     RewriteRule ^/_visualiser/(.*)$ http://${hosts:visualiser}:${ports:visualiser}/VirtualHostBase/https/%{SERVER_NAME}:443/VirtualHostRoot/_vh__visualiser/$1 [L,P]
+    # Rewrite to access data_mover
+    RewriteRule ^/_data_mover/(.*)$ http://${hosts:data_mover}:${ports:data_mover}/VirtualHostBase/https/%{SERVER_NAME}:443/VirtualHostRoot/_vh__data_mover/$1 [L,P]
     # Let Shibboleth, server status,  pass through normally
     RewriteCond %{REQUEST_URI} !^/(shibboleth-sp|Shibboleth.sso|server-(status|info))
     # and proxy everything else to our Virtulahost in Zope
