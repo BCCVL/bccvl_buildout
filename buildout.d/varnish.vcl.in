@@ -26,13 +26,16 @@ acl purge {
 sub vcl_recv {
     set req.grace = 120s;
     set req.backend = default;
-    
+
     if (req.request == "PURGE") {
         if (!client.ip ~ purge) {
                 error 405 "Not allowed.";
         }
         purge_url(req.url);
         error 200 "Purged";
+    }
+    if (req.request == "POST") {
+        return(pipe);
     }
     if (req.request != "GET" && req.request != "HEAD") {
         # We only deal with GET and HEAD by default
@@ -112,5 +115,3 @@ sub rewrite_s_maxage {
         set beresp.http.Cache-Control = regsub(beresp.http.Cache-Control, "s-maxage=[0-9]+", "s-maxage=0");
     }
 }
-
-
