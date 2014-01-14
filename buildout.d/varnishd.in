@@ -1,9 +1,0 @@
-#!/bin/sh
-exec ${cache:daemon} \
-    -p user=${users:cache} \
-    -f "${cache:config}" \
-    -P "${cache:pid}" \
-    -a ${cache:bind} \
-    -s file,"${cache:storage}",${cache:cache-size} \
-    -F \
-    "$@"
