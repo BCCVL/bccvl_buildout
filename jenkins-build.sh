@@ -30,6 +30,10 @@ echo "Run bootstrap and then buildout"
 "$PIP" install distribute --upgrade
 "$PYTHON" bootstrap.py
 $BUILDOUT
+
+Xvfb :10 -screen 0 1366x768x24 -ac &
+export DISPLAY=:10
+
 $JENKINS_TEST
 
 RESULT=$?
