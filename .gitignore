@@ -16,3 +16,4 @@ etc
 moai.log
 coverage
 report
+.vagrant
