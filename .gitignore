@@ -10,7 +10,7 @@ PYSMELLTAGS.stdlib
 develop-eggs
 parts
 var
-picked-versions.cfg
+./picked-versions.cfg
 eggs
 etc
 moai.log
