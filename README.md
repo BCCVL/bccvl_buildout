@@ -32,15 +32,6 @@ Finally, run boostrap then buildout:
     $ python bootstrap.py
     $ ./bin/buildout
 
-Alternatively you can perform the following steps:
-
-    $ ./bootstrap.sh
-    $ fab build
-
-This will prompt you and assist in the creation of a "development"
-``buildout.cfg``. See: ``fab -l`` for a list of develpoment commands
-and ``fab help:<command>`` for specific help on a development task.
-
 
 Running tests:
 --------------

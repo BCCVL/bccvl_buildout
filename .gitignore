@@ -2,8 +2,6 @@ buildout.cfg
 .ropeproject
 DATA
 bin
-*.pyc
-.options.json
 .coverage
 .installed.cfg
 .mr.developer.cfg
