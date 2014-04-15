@@ -1,0 +1,16 @@
+[buildout]
+extends =
+    buildout.d/development.cfg
+#   buildout.d/experimental.cfg
+
+newest = false
+index = http://mirror.rcs.griffith.edu.au:3143/root/pypi/+simple
+find-links +=
+    https://pypi.python.org/packages/source/J/Jinja2/Jinja2-2.7.1.tar.gz
+    
+#always-checkout = no
+
+[instance-settings]
+user = admin:admin
+#eggs +=
+#    readline

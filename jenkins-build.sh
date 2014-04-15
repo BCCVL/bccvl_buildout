@@ -24,7 +24,7 @@ echo "Python version:"
 "$PYTHON" --version
 
 echo "Configuring buildout"
-cp configs/jenkins.cfg buildout.cfg
+cp buildout.cfg.jenkins buildout.cfg
 
 echo "Run bootstrap and then buildout"
 "$PIP" install distribute --upgrade
