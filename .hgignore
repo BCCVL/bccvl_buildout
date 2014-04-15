@@ -1,15 +1,24 @@
 syntax: glob
 
-bin
-etc
-src
-var
-.git
-eggs
-parts
-develop-eggs
-bin/buildout
 buildout.cfg
+.ropeproject
+DATA
+bin
+.git
+*.pyc
+.options.json
+.coverage
 .installed.cfg
 .mr.developer.cfg
+PYSMELLTAGS
+PYSMELLTAGS.stdlib
+develop-eggs
+parts
+var
 picked-versions.cfg
+eggs
+etc
+moai.log
+coverage
+report
+.vagrant

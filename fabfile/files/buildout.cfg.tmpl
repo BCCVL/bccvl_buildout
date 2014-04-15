@@ -1,0 +1,25 @@
+[buildout]
+extends =
+    buildout.d/development.cfg
+
+newest = %(newest)s
+%(mirror)s
+
+download-cache = .cache
+
+[instance-settings]
+user = %(adminuser)s:%(adminpass)s
+eggs +=
+    readline
+    pudb
+
+[hosts]
+instance-debug = %(bind)s
+
+[users]
+main =
+cache =
+transform =
+balancer =
+zope =
+supervisor =
