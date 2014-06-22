@@ -9,7 +9,7 @@ BIN_DIR="bin"
 PYTHON="$BIN_DIR/python"
 PIP="$BIN_DIR/pip"
 BUILDOUT="$BIN_DIR/buildout"
-JENKINS_TEST="$BIN_DIR/jenkins-test"
+JENKINS_TEST="$BIN_DIR/jenkins-test-coverage"
 
 echo "Using WORKSPACE $WORKSPACE"
 cd $WORKSPACE

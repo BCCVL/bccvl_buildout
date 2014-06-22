@@ -1,0 +1,47 @@
+{
+    "BROKER": {
+        "URL": "amqp://bccvl:bccvl@127.0.0.1/bccvl"
+    },
+    "ADMINS": ["g.weis@griffith.edu.au"],
+    "CELERY":{
+        "ACCEPT_CONTENT": ["json", "msgpack", "yaml"],
+        "DEFAULT_ROUTING_KEY": "default",
+        "DEFAULT_QUEUE": "default",
+        "DEFAULT_EXCHANGE": "default",
+        "DEFAULT_EXCHANGE_TYPE": "direct",
+        "IMPORTS": [
+        ],
+        "IGNORE_RESULT": true,
+        "RESULT_BACKEND": "amqp",
+        "RESULT_SERIALIZER": "json",
+        "TASK_RESULT_EXPIRES": 3600,
+        "ROUTES": [
+            {"org.bccvl.tasks.plone.set_progress": {"queue": "plone", "routing_key": "plone"}},
+            {"org.bccvl.tasks.plone.import_ala": {"queue": "plone", "routing_key": "plone"}},
+            {"org.bccvl.tasks.plone.import_cleanup": {"queue": "plone", "routing_key": "plone"}},
+            {"org.bccvl.tasks.plone.import_result": {"queue": "plone", "routing_key": "plone"}},
+            {"org.bccvl.tasks.datamover.move": {"queue": "datamover", "routing_key": "datamover"}},
+            {"org.bccvl.tasks.ala_import.ala_import": {"queue": "datamover", "routing_key": "datamover"}},
+            {"org.bccvl.tasks.compute.r_task": {"queue": "worker", "routing_key": "worker"}},
+            {"org.bccvl.tasks.compute.perl_task": {"queue": "worker", "routing_key": "worker"}}
+        ],
+        "TASK_SERIALIZER": "json",
+        "QUEUES": {
+            "worker": {"routing_key": "worker"},
+            "datamover": {"routing_key": "datamover"},
+            "plone": {"routing_key": "plone"}
+        },
+        "SEND_EVENTS": true,
+        "SEND_TASK_SENT_EVENT": true
+    },
+    "CELERYD": {
+        "PREFETCH_MULTIPLIER": 1,
+        "CONCURRENCY": 1,
+        "FORCE_EXECV": false
+    },
+    "logging": {
+        "level": "INFO",
+        "_class": "logging.handlers.SysLogHandler",
+        "_address": "/var/run/syslog"
+    }
+}
