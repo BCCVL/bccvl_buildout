@@ -4,9 +4,7 @@ extends =
 #   buildout.d/experimental.cfg
 
 newest = false
-index = http://mirror.rcs.griffith.edu.au:3143/root/pypi/+simple
-find-links +=
-    https://pypi.python.org/packages/source/J/Jinja2/Jinja2-2.7.1.tar.gz
+index = http://mirror.rcs.griffith.edu.au:3143/root/pypi/+simple/
     
 #always-checkout = no
 

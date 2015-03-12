@@ -3,7 +3,7 @@ extends =
     buildout.d/staging.cfg
 
 newest = false
-index = http://mirror.rcs.griffith.edu.au:3143/root/pypi/+simple
+index = http://mirror.rcs.griffith.edu.au:3143/root/pypi/+simple/
 
 [instance-settings]
 user = admin:admin
