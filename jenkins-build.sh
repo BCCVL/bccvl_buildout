@@ -17,7 +17,7 @@ cd $WORKSPACE
 echo "Setting up virtualenv in $WORKSPACE"
 curl -O https://pypi.python.org/packages/source/v/virtualenv/virtualenv-12.0.7.tar.gz
 tar -xvzf virtualenv-12.0.7.tar.gz
-python virtualenv-12.0.7/virtualenv.py -p /usr/bin/python2.7 .
+python virtualenv-12.0.7/virtualenv.py --no-setuptools -p /usr/bin/python2.7 .
 source bin/activate
 
 echo "Python version:"
