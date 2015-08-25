@@ -1,5 +1,0 @@
-[ordf]
-ordf.handler = gu.z3cform.rdf.ordfhandler:TransactionAwareHandler
-ordf.readers = httpfourstore
-ordf.writers = httpfourstore
-httpfourstore.url = ${rdf-settings:storeurl}
