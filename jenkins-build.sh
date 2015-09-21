@@ -30,12 +30,12 @@ cp "buildout.cfg.jenkins.${BRANCH}" buildout.cfg
 
 echo "Run bootstrap and then buildout"
 "$PYTHON" bootstrap.py -v 2.2.1
-$BUILDOUT
+"$BUILDOUT"
 
 Xvfb :10 -screen 0 1366x768x24 -ac &
 export DISPLAY=:10
 
-$JENKINS_TEST
+"$JENKINS_TEST"
 
 RESULT=$?
 
