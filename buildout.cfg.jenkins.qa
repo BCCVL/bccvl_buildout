@@ -4,6 +4,11 @@ extends =
 
 newest = false
 
+parts +=
+    jenkins-test
+    jenkins-test-coverage
+
+
 [instance-settings]
 user = admin:admin
 
@@ -14,3 +19,18 @@ transform =
 balancer =
 zope =
 supervisor =
+
+[jenkins-test]
+defaults = ['--auto-color', '--auto-progress', '--xml',
+            '-m', 'org.bccvl.site',
+            '-m', 'org.bccvl.theme',
+            '-m', 'org.bccvl.compute',
+           ]
+
+[jenkins]
+jenkins-test-eggs +=
+    org.bccvl.site [test]
+    org.bccvl.theme [test]
+jenkins-test-directories +=
+    src/org.bccvl.site
+    src/org.bccvl.theme
