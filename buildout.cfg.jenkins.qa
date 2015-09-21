@@ -1,11 +1,11 @@
 [buildout]
 extends =
     buildout.d/staging.cfg
+    buildout.d/test.cfg
 
 newest = false
 
 parts +=
-    coverage
     jenkins-test
     jenkins-test-coverage
 
@@ -20,24 +20,3 @@ transform =
 balancer =
 zope =
 supervisor =
-
-[test-coverage]
-defaults = ['--coverage', '../../coverage', '-v', '--auto-progress',
-            '-m', 'org.bccvl.site',
-            '-m', 'org.bccvl.theme',
-            '-m', 'org.bccvl.compute',
-
-[jenkins-test]
-defaults = ['--auto-color', '--auto-progress', '--xml',
-            '-m', 'org.bccvl.site',
-            '-m', 'org.bccvl.theme',
-            '-m', 'org.bccvl.compute',
-           ]
-
-[jenkins]
-jenkins-test-eggs +=
-    org.bccvl.site [test]
-    org.bccvl.theme [test]
-jenkins-test-directories +=
-    org.bccvl.site
-    org.bccvl.theme
