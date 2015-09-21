@@ -5,6 +5,7 @@ extends =
 newest = false
 
 parts +=
+    coverage
     jenkins-test
     jenkins-test-coverage
 
