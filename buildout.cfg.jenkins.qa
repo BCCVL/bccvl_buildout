@@ -21,6 +21,12 @@ balancer =
 zope =
 supervisor =
 
+[test-coverage]
+defaults = ['--coverage', '../../coverage', '-v', '--auto-progress',
+            '-m', 'org.bccvl.site',
+            '-m', 'org.bccvl.theme',
+            '-m', 'org.bccvl.compute',
+
 [jenkins-test]
 defaults = ['--auto-color', '--auto-progress', '--xml',
             '-m', 'org.bccvl.site',
@@ -33,5 +39,5 @@ jenkins-test-eggs +=
     org.bccvl.site [test]
     org.bccvl.theme [test]
 jenkins-test-directories +=
-    src/org.bccvl.site
-    src/org.bccvl.theme
+    org.bccvl.site
+    org.bccvl.theme
