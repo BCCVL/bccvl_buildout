@@ -1,0 +1,16 @@
+[buildout]
+extends =
+    buildout.d/staging.cfg
+
+newest = false
+
+[instance-settings]
+user = admin:admin
+
+[users]
+main =
+cache =
+transform =
+balancer =
+zope =
+supervisor =

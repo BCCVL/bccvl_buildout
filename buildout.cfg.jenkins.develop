@@ -1,17 +1,11 @@
 [buildout]
 extends =
     buildout.d/development.cfg
-#   buildout.d/experimental.cfg
 
 newest = false
-#index = http://mirror.rcs.griffith.edu.au:3143/root/pypi/+simple
-
-#always-checkout = no
 
 [instance-settings]
 user = admin:admin
-#eggs +=
-#    readline
 
 [users]
 main =
