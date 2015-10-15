@@ -20,3 +20,4 @@ report/
 include/
 lib/
 lib64/
+.dir-locals.el
