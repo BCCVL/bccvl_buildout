@@ -32,7 +32,7 @@ echo "Run bootstrap and then buildout"
 "$PYTHON" bootstrap.py -v 2.2.1
 "$BUILDOUT"
 
-xvf-brun -a "$JENKINS_TEST"
+xvfb-run -a "$JENKINS_TEST"
 
 RESULT=$?
 
