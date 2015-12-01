@@ -32,10 +32,7 @@ echo "Run bootstrap and then buildout"
 "$PYTHON" bootstrap.py -v 2.2.1
 "$BUILDOUT"
 
-Xvfb :10 -screen 0 1366x768x24 -ac &
-export DISPLAY=:10
-
-"$JENKINS_TEST"
+xvfbrun -a "$JENKINS_TEST"
 
 RESULT=$?
 
