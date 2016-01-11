@@ -1,6 +1,6 @@
 {
     "BROKER": {
-        "URL": "amqp://bccvl:bccvl@127.0.0.1/bccvl"
+        "URL": "amqp://bccvl:bccvl@${hosts:queue}/bccvl"
     },
     "ADMINS": ["g.weis@griffith.edu.au"],
     "CELERY":{
@@ -43,7 +43,7 @@
     },
     "logging": {
         "level": "INFO",
-        "_class": "logging.handlers.SysLogHandler",
-        "_address": "/var/run/syslog"
+        "_class": "logging.StreamHandler",
+        "_address": "ext://sys.stdout"
     }
 }
