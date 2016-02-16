@@ -5,10 +5,12 @@ extends =
 
 newest = false
 index = http://mirror.rcs.griffith.edu.au:3143/root/pypi/+simple/
-    
+
 #always-checkout = no
 
 [instance-settings]
 user = admin:admin
 #eggs +=
 #    readline
+environment-vars +=
+    BROKER_URL amqp://bccvl:bccvl@${hosts:queue}/bccvl
