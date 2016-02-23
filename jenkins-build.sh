@@ -32,7 +32,7 @@ echo "Run bootstrap and then buildout"
 "$PYTHON" bootstrap.py -v 2.2.1
 "$BUILDOUT"
 
-xvfb-run -a "$JENKINS_TEST"
+CELERY_CONFIG_MODULE='' xvfb-run -a "$JENKINS_TEST"
 
 RESULT=$?
 
