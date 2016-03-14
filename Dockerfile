@@ -1,4 +1,4 @@
-FROM hub.bccvl.org.au/plone/plone:4.3.7
+FROM hub.bccvl.org.au/plone/plone:4.3.8
 
 RUN yum install -y git gdal-devel gdal-python gcc-c++ exempi-devel && \
     yum clean all
