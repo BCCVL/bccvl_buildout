@@ -7,6 +7,7 @@ COPY files/cmd.sh /cmd.sh
 COPY files/versions.cfg $Z_HOME/
 COPY files/base.cfg $Z_HOME/
 COPY files/test.cfg $Z_HOME/
+COPY files/zope.wsgi.in $Z_HOME/
 
 WORKDIR $Z_HOME
 
