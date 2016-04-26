@@ -3,6 +3,7 @@ FROM hub.bccvl.org.au/plone/plone:4.3.8
 RUN yum install -y git gdal-devel gdal-python gcc-c++ exempi-devel && \
     yum clean all
 
+COPY files/cmd.sh /cmd.sh
 COPY files/versions.cfg $Z_HOME/
 COPY files/base.cfg $Z_HOME/
 COPY files/test.cfg $Z_HOME/
@@ -23,4 +24,4 @@ ENV CELERY_CONFIG_MODULE celeryconfig
 
 EXPOSE 8080
 
-CMD ./bin/instance console
+CMD /cmd.sh
