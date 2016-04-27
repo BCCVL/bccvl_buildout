@@ -12,6 +12,6 @@ if os.environ.get('BROKER_USE_SSL'):
     if os.environ.get('BROKER_USE_SSL_CERTFILE'):
         BROKER_USE_SSL["certfile"] = os.environ.get('BROKER_USE_SSL_CERTFILE')
 
-ADMINS = [email for email in os.environ.get('ADMINS', 'g.weis@griffith.edu.au').split(' ') if admin]
+ADMINS = [email for email in os.environ.get('ADMINS', 'g.weis@griffith.edu.au').split(' ') if email]
 
 CELERY_IMPORTS = [name for name in os.environ.get('CELERY_IMPROTS', '').split(' ') if name]
