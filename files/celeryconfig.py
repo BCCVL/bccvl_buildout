@@ -1,13 +1,17 @@
+import os
 
-BROKER_URL = "amqp://bccvl:bccvl@rabbitmq:5672/bccvl"
-# BROKER_USE_SSL = {
-#     "ca_certs": "/etc/pki/tls/certs/bccvlca.crt.pem",
-#     "keyfile": "/etc/pki/tls/private/worker.key.pem",
-#     "certfile": "/etc/pki/tls/certs/worker.crt.pem",
-#     "cert_reqs": 2
-# }
+BROKER_URL = os.environ.get('BROKER_URL',
+                            "amqp://bccvl:bccvl@rabbitmq:5672/bccvl")
+if os.environ.get('BROKER_USE_SSL'):
+    BROKER_USE_SSL = {
+      'ca_certs': os.environ.get('BROKER_USE_SSL_CA_CERTS'),
+      'cert_reqs': int(os.environ.get('BROKER_USE_SSL_CERT_REQS', '2'))
+    }
+    if os.environ.get('BROKER_USE_SSL_KEFILE'):
+        BROKER_USE_SSL["keyfile"] = os.environ.get('BROKER_USE_SSL_KEYFILE')
+    if os.environ.get('BROKER_USE_SSL_CERTFILE'):
+        BROKER_USE_SSL["certfile"] = os.environ.get('BROKER_USE_SSL_CERTFILE')
 
-ADMINS = ['g.weis@griffith.edu.au']
+ADMINS = [email for email in os.environ.get('ADMINS', 'g.weis@griffith.edu.au').split(' ') if admin]
 
-CELERY_IMPORTS = [
-]
+CELERY_IMPORTS = [name for name in os.environ.get('CELERY_IMPROTS', '').split(' ') if name]
