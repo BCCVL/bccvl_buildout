@@ -5,13 +5,11 @@ BROKER_URL = os.environ.get('BROKER_URL',
 if os.environ.get('BROKER_USE_SSL'):
     BROKER_USE_SSL = {
       'ca_certs': os.environ.get('BROKER_USE_SSL_CA_CERTS'),
-      'cert_reqs': int(os.environ.get('BROKER_USE_SSL_CERT_REQS', '2'))
+      'cert_reqs': int(os.environ.get('BROKER_USE_SSL_CERT_REQS', '2')),
+      'keyfile': os.environ.get('BROKER_USE_SSL_KEYFILE'),
+      'certfile': os.environ.get('BROKER_USE_SSL_CERTFILE'),
     }
-    if os.environ.get('BROKER_USE_SSL_KEFILE'):
-        BROKER_USE_SSL["keyfile"] = os.environ.get('BROKER_USE_SSL_KEYFILE')
-    if os.environ.get('BROKER_USE_SSL_CERTFILE'):
-        BROKER_USE_SSL["certfile"] = os.environ.get('BROKER_USE_SSL_CERTFILE')
 
 ADMINS = [email for email in os.environ.get('ADMINS', 'g.weis@griffith.edu.au').split(' ') if email]
 
-CELERY_IMPORTS = [name for name in os.environ.get('CELERY_IMPROTS', '').split(' ') if name]
+CELERY_IMPORTS = [name for name in os.environ.get('CELERY_IMPORTS', '').split(' ') if name]
