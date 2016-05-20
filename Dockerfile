@@ -17,6 +17,8 @@ COPY files/bccvl.ini $Z_CONF/bccvl.ini
 COPY files/entrypoint.sh /entrypoint.sh
 COPY files/cmd.sh /cmd.sh
 
+COPY jenkins-build.sh $Z_HOME/
+
 ENV Z_CONFIG_FILE $Z_HOME/parts/instance/etc/zope.conf
 
 ENV TZ AEST-10
