@@ -29,7 +29,7 @@ echo "Configuring buildout for branch $BRANCH"
 cp "buildout.cfg.jenkins.${BRANCH}" buildout.cfg
 
 echo "Run bootstrap and then buildout"
-"$PYTHON" bootstrap.py -v 2.2.1
+"$PYTHON" bootstrap.py -v 2.5.0
 "$BUILDOUT"
 
 CELERY_CONFIG_MODULE='' xvfb-run -a "$JENKINS_TEST"
