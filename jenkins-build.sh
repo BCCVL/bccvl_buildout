@@ -19,7 +19,7 @@ curl -O https://pypi.python.org/packages/source/v/virtualenv/virtualenv-12.0.7.t
 tar -xvzf virtualenv-12.0.7.tar.gz
 python virtualenv-12.0.7/virtualenv.py -p /usr/bin/python2.7 .
 source bin/activate
-easy_install setuptools==0.9.8
+easy_install setuptools==19.6.1
 
 echo "Python version:"
 "$PYTHON" --version
