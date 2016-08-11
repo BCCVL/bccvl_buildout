@@ -4,7 +4,6 @@ zope_conf = ${instance:location}/etc/zope.conf
 
 [pipeline:main]
 pipeline =
-   egg:paste#evalerror
    egg:repoze.retry#retry
    egg:repoze.tm2#tm
    zope-app
