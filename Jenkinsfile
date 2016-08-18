@@ -25,7 +25,7 @@ node {
             // ensure we have a dbus machine-id for firefox
             sh "dbus-uuidgen > /etc/machine-id"
             // run tests
-            sh "cd \"${BCCVL_HOME}\"; CELERY_CONFIG_MODULE='' xvfb-run -l -a ./bin/jenkins-test-coverage"
+            sh "cd \"\${BCCVL_HOME}\"; CELERY_CONFIG_MODULE='' xvfb-run -l -a ./bin/jenkins-test-coverage"
         } catch(err) {
             echo "Caugh Exception marking build as 'FAILURE'"
             currentBuild.result = 'FAILURE'
@@ -33,8 +33,8 @@ node {
 
 
         // copy test results to workdir
-        sh "cd \"${BCCVL_HOME}\"; ./bin/coverage html -d parts/jenkins-test/coverage-report"
-        sh 'cp -rf \"${BCCVL_HOME}/parts/jenkins-test\" "${PWD}/"'
+        sh "cd \"\${BCCVL_HOME}\"; ./bin/coverage html -d parts/jenkins-test/coverage-report"
+        sh 'cp -rf \"\${BCCVL_HOME}/parts/jenkins-test\" "${PWD}/"'
 
         // capture unit test outputs in jenkins
         step([$class: 'JUnitResultArchiver', testResults: 'jenkins-test/testreports/*.xml'])
