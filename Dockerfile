@@ -52,9 +52,11 @@ EXPOSE 8080
 
 VOLUME ${BCCVL_HOME}/var
 
+COPY entrypoint.sh cmd.sh /
+
 # entrypoint and cmd are relative to WORKDIR
-ENTRYPOINT ["./entrypoint.sh"]
-CMD ["./cmd.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/cmd.sh"]
 
 
 #TODO:
