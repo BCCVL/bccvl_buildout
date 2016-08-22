@@ -20,13 +20,13 @@ node {
     // baseimage.inside("-e HOME='${env.JENKINS_HOME}'") {
     baseimage.inside() {
         sh "python files/bootstrap-buildout.py --setuptools-version=${setuptools_version} -c files/jenkins.cfg"
-        sh "./bin/buildout -c files/jenkins.cfg"
+        sh "./files/bin/buildout -c files/jenkins.cfg"
     }
 
     stage 'Test'
 
     baseimage.inside('-v /etc/machine-id:/etc/machine-id') {
-        sh "cd files; CELERY_CONFIG_MODULE='' xvfb-run -l -a ./bin/jenkins-test-coverage"
+        sh "CELERY_CONFIG_MODULE='' xvfb-run -l -a ./files/bin/jenkins-test-coverage"
     }
 
     // capture unit test outputs in jenkins
