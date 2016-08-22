@@ -19,7 +19,7 @@ node {
     // sh "git config --global user.name 'jenkins'"
     // baseimage.inside("-e HOME='${env.JENKINS_HOME}'") {
     baseimage.inside() {
-        sh "python bootstrap-buildout.py --setuptools-version=${setuptools_version} -c files/jenkins.cfg"
+        sh "python files/bootstrap-buildout.py --setuptools-version=${setuptools_version} -c files/jenkins.cfg"
         sh "./bin/buildout -c files/jenkins.cfg"
     }
 
