@@ -15,18 +15,19 @@ node {
     // we have to make sure git user.name is cnofigured so that git does not try to
     // query /etc/passwd for potentially non existent jekins user  (uid 1000) inside container
     // and make sure, that HOME inside container points to JENKINS_HOME (from before running the container)
-    // sh "git config --global user.email 'jenkins@bccvl.org.au'"
-    // sh "git config --global user.name 'jenkins'"
-    // baseimage.inside("-e HOME='${env.JENKINS_HOME}'") {
-    baseimage.inside() {
-        sh "python files/bootstrap-buildout.py --setuptools-version=${setuptools_version} -c files/jenkins.cfg"
-        sh "./files/bin/buildout -c files/jenkins.cfg"
+    def tmp_home = pwd tmp:true
+    baseimage.inside("-e HOME='${tmp_home}'") {
+        // setup git, so that mr.developer doesn't have lookup non existent uid  1000
+        sh "git config --global user.email 'jenkins@bccvl.org.au'"
+        sh "git config --global user.name 'jenkins'"
+        sh "cd files; python bootstrap-buildout.py --setuptools-version=${setuptools_version} -c jenkins.cfg"
+        sh "cd files; ./bin/buildout -c jenkins.cfg"
     }
 
     stage 'Test'
 
     baseimage.inside('-v /etc/machine-id:/etc/machine-id') {
-        sh "CELERY_CONFIG_MODULE='' xvfb-run -l -a ./files/bin/jenkins-test-coverage"
+        sh "cd files; CELERY_CONFIG_MODULE='' xvfb-run -l -a ./bin/jenkins-test-coverage"
     }
 
     // capture unit test outputs in jenkins
