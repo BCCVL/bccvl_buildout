@@ -26,7 +26,7 @@ node {
 
     stage 'Test'
 
-    baseimage.inside('-v /etc/machine-id:/etc/machine-id') {
+    baseimage.inside("-v /etc/machine-id:/etc/machine-id -e HOME='${tmp_home}'") {
         sh "cd files; CELERY_CONFIG_MODULE='' xvfb-run -l -a ./bin/jenkins-test-coverage"
     }
 
