@@ -15,11 +15,9 @@ node {
     // we have to make sure git user.name is cnofigured so that git does not try to
     // query /etc/passwd for potentially non existent jekins user  (uid 1000) inside container
     // and make sure, that HOME inside container points to JENKINS_HOME (from before running the container)
-    sh "git config user.email 'jenkins@bccvl.org.au'"
-    sh "git config user.name 'jenkins'"
-    def jenkins_home = env.JENKINS_HOME
-    println(jenkins_home)
-    baseimage.inside("-e HOME='${jenkins_home}'") {
+    sh "git config --global user.email 'jenkins@bccvl.org.au'"
+    sh "git config --global user.name 'jenkins'"
+    baseimage.inside("-e HOME='${env.JENKINS_HOME}'") {
         sh "cd files; python bootstrap-buildout.py --setuptools-version=${setuptools_version} -c jenkins.cfg"
         sh "cd files; ./bin/buildout -c jenkins.cfg"
     }
