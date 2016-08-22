@@ -12,8 +12,8 @@ node {
     def setuptools_version = getBuildoutVersion("files/versions.cfg", "setuptools")
 
     baseimage.inside() {
-        sh "cd files; python bootstrap-buildout.py --setuptools-version=${setuptools_version}"
-        sh "cd files; ./bin/buildout"
+        sh "cd files; python bootstrap-buildout.py --setuptools-version=${setuptools_version} -c jenkins.cfg"
+        sh "cd files; ./bin/buildout -c jenkins.cfg"
     }
 
     stage 'Test'
