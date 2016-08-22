@@ -7,7 +7,7 @@ node {
 
     // buildout
     stage 'Buildout'
-    def baseimage = getDockerFrom()
+    def baseimage = docker.Image(getDockerFrom())
 
     def setuptools_version = getBuildoutVersion("files/versions.cfg", "setuptools")
 
