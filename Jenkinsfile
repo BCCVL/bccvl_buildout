@@ -10,18 +10,14 @@ node {
     def baseimage = docker.image('hub.bccvl.org.au/bccvl/bccvlbase:2016-08-21')
 
     baseimage.inside() {
-        dir("files") {
-            sh "python bootstrap-buildout.py"
-            sh "./bin/buildout"
-        }
+        sh "cd files; python bootstrap-buildout.py"
+        sh "cd files; ./bin/buildout"
     }
 
     stage 'Test'
 
     baseimage.inside('-v /etc/machine-id:/etc/machine-id') {
-        dir("files") {
-            sh "CELERY_CONFIG_MODULE='' xvfb-run -l -a ./bin/jenkins-test-coverage"
-        }
+        sh "cd files; CELERY_CONFIG_MODULE='' xvfb-run -l -a ./bin/jenkins-test-coverage"
     }
 
     // capture unit test outputs in jenkins
