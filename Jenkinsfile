@@ -7,7 +7,7 @@ node {
 
     // buildout
     stage 'Buildout'
-    def baseimage = docker.image('hub.bccvl.org.au/bccvl/bccvlbase:2016-08-21')
+    def baseimage = getDockerFrom()
 
     def setuptools_version = getBuildoutVersion("files/versions.cfg", "setuptools")
 

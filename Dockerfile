@@ -1,4 +1,4 @@
-FROM hub.bccvl.org.au/bccvl/bccvlbase:2016-08-21
+FROM hub.bccvl.org.au/bccvl/bccvlbase:2016-08-22
 
 # Setup environment variables
 ENV BCCVL_USER bccvl
