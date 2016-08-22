@@ -11,6 +11,8 @@ node {
 
     def setuptools_version = getBuildoutVersion("files/versions.cfg", "setuptools")
 
+    println(env)
+
     baseimage.inside("-e HOME='${env.WORKSPACE}'") {
         sh "set"
         sh "git config --global user.email 'jenkins@bccvl.org.au'"
