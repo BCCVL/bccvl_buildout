@@ -9,8 +9,10 @@ node {
     stage 'Buildout'
     def baseimage = docker.image('hub.bccvl.org.au/bccvl/bccvlbase:2016-08-21')
 
+    def setuptools_version = getBuildoutVersion("files/versions.cfg", "setuptools")
+
     baseimage.inside() {
-        sh "cd files; python bootstrap-buildout.py"
+        sh "cd files; python bootstrap-buildout.py --setuptools-version=${setuptools_version}"
         sh "cd files; ./bin/buildout"
     }
 
@@ -21,14 +23,14 @@ node {
     }
 
     // capture unit test outputs in jenkins
-    step([$class: 'JUnitResultArchiver', testResults: 'jenkins-test/testreports/*.xml'])
+    step([$class: 'JUnitResultArchiver', testResults: 'files/jenkins-test/testreports/*.xml'])
 
     // capture coverage report
-    publishHTML(target:[allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'jenkins-test/coverage-report', reportFiles: 'index.html', reportName: 'Coverage Report'])
+    publishHTML(target:[allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'files/jenkins-test/coverage-report', reportFiles: 'index.html', reportName: 'Coverage Report'])
 
     // capture robot result
     step([$class: 'RobotPublisher',
-          outputPath: 'jenkins-test',
+          outputPath: 'files/jenkins-test',
           outputFileName: 'robot_output.xml',
           disableArchiveOutput: false,
           reportFileName: 'robot_report.html',
