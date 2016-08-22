@@ -18,7 +18,8 @@ node {
     sh "git config user.email 'jenkins@bccvl.org.au'"
     sh "git config user.name 'jenkins'"
     def jenkins_home = env.JENKINS_HOME
-    baseimage.inside("-e HOME=${jenkins_home}") {
+    println(jenkins_home)
+    baseimage.inside("-e HOME='${jenkins_home}'") {
         sh "cd files; python bootstrap-buildout.py --setuptools-version=${setuptools_version} -c jenkins.cfg"
         sh "cd files; ./bin/buildout -c jenkins.cfg"
     }
