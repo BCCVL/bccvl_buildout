@@ -1,29 +1,4 @@
-FROM hub.bccvl.org.au/centos/centos7-epel:2016-04-15
-
-RUN yum install -y http://yum.postgresql.org/9.5/redhat/rhel-7-x86_64/pgdg-centos95-9.5-2.noarch.rpm \
-    && yum install -y \
-    exempi-devel \
-    freetype-devel \
-    gcc \
-    gcc-c++ \
-    gettext \
-    gdal-devel \
-    gdal-python \
-    lcms2-devel \
-    libffi-devel \
-    libjpeg-turbo-devel \
-    libpng-devel \
-    libtiff-devel \
-    libwebp-devel \
-    libxml2-devel \
-    libxslt-devel \
-    libzip-devel \
-    mailcap \
-    openjpeg-devel \
-    openssl-devel \
-    postgresql95-devel \
-    python-devel \
-    && yum clean all
+FROM hub.bccvl.org.au/bccvl/bccvlbase:2016-08-21
 
 # Setup environment variables
 ENV BCCVL_USER bccvl
@@ -31,7 +6,6 @@ ENV BCCVL_HOME /opt/${BCCVL_USER}
 ENV BCCVL_VAR /var/opt/${BCCCVL_USER}
 ENV BCCVL_ETC /etc/opt/${BCCVL_USER}
 
-ENV PATH /usr/pgsql-9.5/bin:$PATH
 ENV TZ AEST-10
 
 # add bccvl user to image
