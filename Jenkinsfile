@@ -7,13 +7,18 @@ node {
 
     // buildout
     stage 'Buildout'
-    def baseimage = docker.image(getDockerFrom())
 
+    def baseimage = docker.image(getDockerFrom())
     def setuptools_version = getBuildoutVersion("files/versions.cfg", "setuptools")
 
-    baseimage.inside() {
-        sh "git config user.email 'jenkins@bccvl.org.au'"
-        sh "git config user.name 'Jenkins'"
+    // FIXME: make sure git is set up on node (HOME should be set to JENKINS_HOME here)
+    // we have to make sure git user.name is cnofigured so that git does not try to
+    // query /etc/passwd for potentially non existent jekins user  (uid 1000) inside container
+    // and make sure, that HOME inside container points to JENKINS_HOME (from before running the container)
+    sh "git config user.email 'jenkins@bccvl.org.au'"
+    sh "git config user.name 'jenkins'"
+    def jenkins_home = env.JENKINS_HOME
+    baseimage.inside("-e HOME=${jenkins_home}") {
         sh "cd files; python bootstrap-buildout.py --setuptools-version=${setuptools_version} -c jenkins.cfg"
         sh "cd files; ./bin/buildout -c jenkins.cfg"
     }
