@@ -34,7 +34,7 @@ node {
     step([$class: 'JUnitResultArchiver', testResults: 'files/parts/jenkins-test/testreports/*.xml'])
 
     // capture coverage report
-    publishHTML(target:[allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'files/parts/jenkins-test/coverage-report', reportFiles: 'index.html', reportName: 'Coverage Report'])
+    //publishHTML(target:[allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'files/parts/jenkins-test/coverage-report', reportFiles: 'index.html', reportName: 'Coverage Report'])
 
     // capture robot result
     step([$class: 'RobotPublisher',
