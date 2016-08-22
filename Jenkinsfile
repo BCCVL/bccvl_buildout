@@ -23,14 +23,14 @@ node {
     }
 
     // capture unit test outputs in jenkins
-    step([$class: 'JUnitResultArchiver', testResults: 'files/jenkins-test/testreports/*.xml'])
+    step([$class: 'JUnitResultArchiver', testResults: 'files/parts/jenkins-test/testreports/*.xml'])
 
     // capture coverage report
-    publishHTML(target:[allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'files/jenkins-test/coverage-report', reportFiles: 'index.html', reportName: 'Coverage Report'])
+    publishHTML(target:[allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'files/parts/jenkins-test/coverage-report', reportFiles: 'index.html', reportName: 'Coverage Report'])
 
     // capture robot result
     step([$class: 'RobotPublisher',
-          outputPath: 'files/jenkins-test',
+          outputPath: 'files/parts/jenkins-test',
           outputFileName: 'robot_output.xml',
           disableArchiveOutput: false,
           reportFileName: 'robot_report.html',
