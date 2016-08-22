@@ -11,15 +11,14 @@ node {
 
     def setuptools_version = getBuildoutVersion("files/versions.cfg", "setuptools")
 
-    baseimage.inside("-e HOME='${env.PWD}'") {
-        sh "export HOME='${env.PWD}'; set"
-        sh "set"
-        env.HOME = env.PWD
-        sh "set"
-        sh "git config --global user.email 'jenkins@bccvl.org.au'"
-        sh "git config --global user.name 'Jenkins'"
-        sh "cd files; python bootstrap-buildout.py --setuptools-version=${setuptools_version} -c jenkins.cfg"
-        sh "cd files; ./bin/buildout -c jenkins.cfg"
+    baseimage.inside() {
+        withEnv(["HOME=${env.PWD}", "TEST=${env.YWD}", 'TEST_BASH=${PWD}']) {
+            sh "set"
+            sh "git config --global user.email 'jenkins@bccvl.org.au'"
+            sh "git config --global user.name 'Jenkins'"
+            sh "cd files; python bootstrap-buildout.py --setuptools-version=${setuptools_version} -c jenkins.cfg"
+            sh "cd files; ./bin/buildout -c jenkins.cfg"
+        }
     }
 
     stage 'Test'
