@@ -11,7 +11,7 @@ node {
 
     def setuptools_version = getBuildoutVersion("files/versions.cfg", "setuptools")
 
-    println(env)
+    echo env
 
     baseimage.inside("-e HOME='${env.WORKSPACE}'") {
         sh "set"
