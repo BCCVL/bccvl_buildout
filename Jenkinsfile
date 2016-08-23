@@ -76,7 +76,8 @@ node {
 
                 sh "docker exec -u bccvl:bccvl ${container.id} bash -c 'CELERY_CONFIG_MODULE= xvfb-run -l -a ./bin/jenkins-test-coverage'"
 
-                sh "docker cp ${container.id}:/opt/bccvl/parts/jenkins-test jenkins-test"
+                // TODO: remove results folder in case old results are still there? (maybe remove before starting container)
+                sh "docker cp ${container.id}:/opt/bccvl/parts/jenkins-test jenkins-test/"
 
                 publish_test_results('.')
 
