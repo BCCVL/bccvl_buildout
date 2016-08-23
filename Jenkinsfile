@@ -66,9 +66,13 @@ node {
         if (['feature/develop_docker', 'master', 'qa'].contains(env.BRANCH_NAME)) {
             // run tests inside freshly built image
 
-            image.inside() {
-                sh "CELERY_CONFIG_MODULE='' xvfb-run -l -a /opt/bccvl/bin/jenkins-test-coverage"
-                publish_test_results()
+            image.withRun('cat') { container ->
+
+                sh "docker exec -u bccvl -e CELERY_CONFIG_MODULE='' -v /etc/machine-id:/etc/machine-id ${container.id} 'xvfb-run -l -a ./bin/jenkins-test-coverage'"
+
+                sh "docker cp ${container.id}:/opt/bccvl/parts/jenkins-test jenkins-test"
+
+                publish_test_results('.')
             }
 
         } else {
@@ -80,7 +84,7 @@ node {
                 sh "cd files; CELERY_CONFIG_MODULE='' xvfb-run -l -a ./bin/jenkins-test-coverage"
             }
 
-            publish_test_results('files')
+            publish_test_results('files/parts')
 
         }
 
@@ -152,14 +156,14 @@ if (currentBuild.result == 'SUCCESS') {
 
 def publish_test_results(prefix='') {
     // capture unit test outputs in jenkins
-    step([$class: 'JUnitResultArchiver', testResults: "${prefix}/parts/jenkins-test/testreports/*.xml"])
+    step([$class: 'JUnitResultArchiver', testResults: "${prefix}/jenkins-test/testreports/*.xml"])
 
     // capture coverage report
-    //publishHTML(target:[allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: "${prefix}/parts/jenkins-test/coverage-report", reportFiles: 'index.html', reportName: 'Coverage Report'])
+    //publishHTML(target:[allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: "${prefix}/jenkins-test/coverage-report", reportFiles: 'index.html', reportName: 'Coverage Report'])
 
     // capture robot result
     step([$class: 'RobotPublisher',
-          outputPath: "${prefix}/parts/jenkins-test",
+          outputPath: "${prefix}/jenkins-test",
           outputFileName: 'robot_output.xml',
           disableArchiveOutput: false,
           reportFileName: 'robot_report.html',
