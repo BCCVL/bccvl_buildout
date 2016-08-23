@@ -77,10 +77,7 @@ node {
                 sh "docker exec -u bccvl:bccvl ${container.id} bash -c 'CELERY_CONFIG_MODULE= xvfb-run -l -a ./bin/jenkins-test-coverage'"
 
                 // TODO: remove results folder in case old results are still there? (maybe remove before starting container)
-                sh "docker cp ${container.id}:/opt/bccvl/parts/jenkins-test jenkins-test/"
-
-                publish_test_results('.')
-
+                sh "docker cp ${container.id}:/opt/bccvl/parts files/parts/"
             } finally {
                 container.stop()
             }
@@ -94,9 +91,26 @@ node {
                 sh "cd files; CELERY_CONFIG_MODULE='' xvfb-run -l -a ./bin/jenkins-test-coverage"
             }
 
-            publish_test_results('files/parts')
-
         }
+
+        // capture unit test outputs in jenkins
+        step([$class: 'JUnitResultArchiver', testResults: "files/parts/jenkins-test/testreports/*.xml"])
+
+        // capture coverage report
+        //publishHTML(target:[allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: "files/parts/jenkins-test/coverage-report", reportFiles: 'index.html', reportName: 'Coverage Report'])
+
+        // capture robot result
+        step([$class: 'RobotPublisher',
+             outputPath: "files/parts/jenkins-test",
+             outputFileName: 'robot_output.xml',
+             disableArchiveOutput: false,
+             reportFileName: 'robot_report.html',
+             logFileName: 'robot_log.html',
+             passThreshold: 90,
+             unstableThreshold: 100,
+             onlyCritical: false,
+             otherFiles: '',
+             enableCache: false])
 
         if (['feature/develop_docker', 'qa', 'master'].contains(env.BRANCH_NAME)) {
             // we want to push and deploy our image from these branches
@@ -160,27 +174,4 @@ if (currentBuild.result == 'SUCCESS') {
 
     }
 
-}
-
-
-
-def publish_test_results(prefix='') {
-    // capture unit test outputs in jenkins
-    step([$class: 'JUnitResultArchiver', testResults: "${prefix}/jenkins-test/testreports/*.xml"])
-
-    // capture coverage report
-    //publishHTML(target:[allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: "${prefix}/jenkins-test/coverage-report", reportFiles: 'index.html', reportName: 'Coverage Report'])
-
-    // capture robot result
-    step([$class: 'RobotPublisher',
-          outputPath: "${prefix}/jenkins-test",
-          outputFileName: 'robot_output.xml',
-          disableArchiveOutput: false,
-          reportFileName: 'robot_report.html',
-          logFileName: 'robot_log.html',
-          passThreshold: 90,
-          unstableThreshold: 100,
-          onlyCritical: false,
-          otherFiles: '',
-          enableCache: false])
 }
