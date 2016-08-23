@@ -67,8 +67,8 @@ node {
             // run tests inside freshly built image
 
             image.inside('-u bccvl:bccvl') {
-                sh "cd /opt/bccvl; CELERY_CONFIG_MODULE='' xvfb-run -l -a ./bin/jenkins-test-coverage"
-                publish_test_results('/opt/bccvl')
+                sh "CELERY_CONFIG_MODULE='' xvfb-run -l -a /opt/bccvl/bin/jenkins-test-coverage"
+                publish_test_results()
             }
 
         } else {
