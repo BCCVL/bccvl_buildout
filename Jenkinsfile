@@ -70,7 +70,7 @@ node {
 
             try {
 
-                sh "docker exec -u bccvl -e CELERY_CONFIG_MODULE='' -v /etc/machine-id:/etc/machine-id ${container.id} 'xvfb-run -l -a ./bin/jenkins-test-coverage'"
+                sh "docker exec -u bccvl ${container.id} 'CELERY_CONFIG_MODULE=\'\' xvfb-run -l -a ./bin/jenkins-test-coverage'"
 
                 sh "docker cp ${container.id}:/opt/bccvl/parts/jenkins-test jenkins-test"
 
