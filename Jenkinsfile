@@ -66,7 +66,7 @@ node {
         if (['feature/develop_docker', 'master', 'qa'].contains(env.BRANCH_NAME)) {
             // run tests inside freshly built image
 
-            def container = image.run('-v /etc/machine-id:/etc/machine-id', 'cat')
+            def container = image.run('-t -v /etc/machine-id:/etc/machine-id', 'cat')
 
             try {
 
