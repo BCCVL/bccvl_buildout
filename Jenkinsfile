@@ -66,13 +66,18 @@ node {
         if (['feature/develop_docker', 'master', 'qa'].contains(env.BRANCH_NAME)) {
             // run tests inside freshly built image
 
-            image.withRun('cat') { container ->
+            def container = image.run('-v /etc/machine-id:/etc/machine-id', 'cat')
+
+            try {
 
                 sh "docker exec -u bccvl -e CELERY_CONFIG_MODULE='' -v /etc/machine-id:/etc/machine-id ${container.id} 'xvfb-run -l -a ./bin/jenkins-test-coverage'"
 
                 sh "docker cp ${container.id}:/opt/bccvl/parts/jenkins-test jenkins-test"
 
                 publish_test_results('.')
+
+            } finally {
+                container.stop()
             }
 
         } else {
