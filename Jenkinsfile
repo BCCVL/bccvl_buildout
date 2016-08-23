@@ -66,9 +66,9 @@ node {
         if (['feature/develop_docker', 'master', 'qa'].contains(env.BRANCH_NAME)) {
             // run tests inside freshly built image
 
-            image.inside() {
-                sh "cd \"${BCCVL_HOME}\"; CELERY_CONFIG_MODULE='' xvfb-run -l -a ./bin/jenkins-test-coverage"
-                publish_test_results(BCCVL_HOME)
+            image.inside('-u bccvl:bccvl') {
+                sh "cd /opt/bccvl; CELERY_CONFIG_MODULE='' xvfb-run -l -a ./bin/jenkins-test-coverage"
+                publish_test_results('/opt/bccvl')
             }
 
         } else {
