@@ -12,8 +12,8 @@ echo `$PYTHON --version`
 #
 # we need eggs folder so that we can use collective.recipe.environment during bootstrap
 mkdir -p eggs
-echo "Running $PYTHON bootstrap-buildout.py --setuptools-version=20.1.1"
-$PYTHON "bootstrap-buildout.py" --setuptools-version=20.1.1 || exit $?
+echo "Running $PYTHON bootstrap-buildout.py --setuptools-version=20.1.1 -c ${BUILDOUT_CFG}"
+$PYTHON "bootstrap-buildout.py" --setuptools-version=20.1.1 -c ${BUILDOUT_CFG} || exit $?
 
 mkdir -p $BCCVL_VAR
 mkdir -p $BCCVL_ETC
@@ -22,7 +22,7 @@ mkdir -p $BCCVL_ETC
 # Run buildout
 #
 echo "Running bin/buildout"
-./bin/buildout || exit $?
+./bin/buildout -c ${BUILDOUT_CFG} || exit $?
 
 # compile all .po files inside buildout folder
 for po in $(find . -path '*/LC_MESSAGES/*.po'); do

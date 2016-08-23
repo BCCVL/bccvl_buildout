@@ -1,107 +1,172 @@
 
-def imagename;
-def imagetag;
+// Image version numbers:
+//    <tag>-<commitcount>-<hash>
+//    <tag>-<jenkins build>-<hash>
+
+// Build Strategy
+//   feature branches ... just build and test
+//   develop ... build image from source clones (force rebuild?)
+//   qa/master ... build from packaged versions only (no force required as buildout clone should be changed in any case)
+
+def imagename = null;
 
 node {
-    // fetch source
-    stage 'Checkout'
+    catchError { // catch all exceptions to do some cleanup at the end (e.g. send email)
+        // fetch source
+        stage 'Checkout'
 
-    checkout scm
+        checkout scm
 
-    // build image
-    stage 'Build Image'
+        // buildout
+        stage 'Build'
 
-    imagename = 'hub.bccvl.org.au/bccvl/bccvl'
-    def img = docker.build(imagename)
+        def image = null;
 
-    // test image
-    stage 'Test'
+        if (['develop', 'master', 'qa'].contains(env.BRANCH_NAME)) {
+            // some branch we want to build an image from
+            // build into image
 
-    docker.image(imagename).inside("-u root") {
+            def tag = null;
+            def build_args = null;
+            if (env.BRANCH_NAME == 'develop') {
+                tag = 'latest';
+                build_args = "--build-arg BUILDOUT_CFG=develop.cfg ."
+            } else {
+                // it is important here, that all package versions are pinned, so that build out repo get's at least a new 'revision-number' after last tag
+                tag = getGitTag();
+            }
 
-        // run tests
-        sh "yum install -y xorg-x11-server-Xvfb firefox which"
-        try {
-            // ensure we have a dbus machine-id for firefox
-            sh "dbus-uuidgen > /etc/machine-id"
-            // run tests
-            sh "cd /opt/zope; CELERY_CONFIG_MODULE='' xvfb-run -l -a ./bin/jenkins-test-coverage"
-        } catch(err) {
-            echo "Caugh Exception marking build as 'FAILURE'"
-            currentBuild.result = 'FAILURE'
+            imagename = newImageTag('bccvl/bccvl', tag)
+
+            image = docker.build(imagename, build_args);
+
+        } else {
+            // some test only branch
+            // build into jenkins workspace as usual
+            image = docker.image(getDockerFrom())
+            def setuptools_version = getBuildoutVersion("files/versions.cfg", "setuptools")
+
+            // FIXME: make sure git is set up on node (HOME should be set to JENKINS_HOME here)
+            // we have to make sure git user.name is cnofigured so that git does not try to
+            // query /etc/passwd for potentially non existent jekins user  (uid 1000) inside container
+            // and make sure, that HOME inside container points to JENKINS_HOME (from before running the container)
+            def tmp_home = pwd tmp:true
+            image.inside("-e HOME='${tmp_home}'") {
+                // setup git, so that mr.developer doesn't have lookup non existent uid  1000
+                // TODO: maybe use given git credentials instead of generic jenkins values?
+                sh "git config --global user.email 'jenkins@bccvl.org.au'"
+                sh "git config --global user.name 'jenkins'"
+                sh "cd files; python bootstrap-buildout.py --setuptools-version=${setuptools_version} -c jenkins.cfg"
+                sh "cd files; ./bin/buildout -c jenkins.cfg"
+            }
         }
 
+        stage 'Test'
 
-        // copy test results to workdir
-        sh "cd /opt/zope; ./bin/coverage html -d parts/jenkins-test/coverage-report"
-        sh 'cp -rf /opt/zope/parts/jenkins-test "${PWD}/"'
+        if (['develop', 'master', 'qa'].contains(env.BRANCH_NAME)) {
+            // run tests inside freshly built image
 
-        // capture unit test outputs in jenkins
-        step([$class: 'JUnitResultArchiver', testResults: 'jenkins-test/testreports/*.xml'])
+            image.inside() {
+                sh "CELERY_CONFIG_MODULE='' xvfb-run -l -a ./bin/jenkins-test-coverage"
+                publish_test_results()
+            }
 
-        // capture coverage report
-        publishHTML(target:[allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'jenkins-test/coverage-report', reportFiles: 'index.html', reportName: 'Coverage Report'])
+        } else {
+            // run tests from workspace build
+            // FIXME: see FIXME above
+            //        here it is firefox that needs a writable HOME folder
+            def tmp_home = pwd tmp:true
+            image.inside("-v /etc/machine-id:/etc/machine-id -e HOME='${tmp_home}'") {
+                sh "cd files; CELERY_CONFIG_MODULE='' xvfb-run -l -a ./bin/jenkins-test-coverage"
+            }
 
-        // capture robot result
-        step([$class: 'RobotPublisher',
-                        outputPath: 'jenkins-test',
-                        outputFileName: 'robot_output.xml',
-                        disableArchiveOutput: false,
-                        reportFileName: 'robot_report.html',
-                        logFileName: 'robot_log.html',
-                        passThreshold: 90,
-                        unstableThreshold: 100,
-                        onlyCritical: false,
-                        otherFiles: '',
-                        enableCache: false])
+            publish_test_results('files')
+
+        }
+
+        if (['develop', 'qa', 'master'].contains(env.BRANCH_NAME)) {
+            // we want to push and deploy our image from these branches
+
+            stage 'Push Image'
+
+            if (currentBuild.result == 'SUCCESS') {
+
+                image.push();
+                slackSend color: 'good', message: "New Image ${imagename}:${imagetag}\n${env.JOB_URL}"
+
+            } else {
+                // we should abort the pipeline in any case
+                error "Build status is ${currentBuild.result}. Not continuing with push and deploy"
+
+            }
+        }
+
     }
 
-    imagetag = getBuildoutVersion("files/versions.cfg", "org.bccvl.site")
+    // use jenkins mailer to send out build notifications
+    step([$class: 'Mailer',
+          notifyEveryUnstableBuild: true,
+          recipients: 'g.weis@griffith.edu.au',
+          sendToIndividuals: true])
 
-    // publish image to registry
-    switch(env.BRANCH_NAME) {
-        case 'feature/develop_docker':
+
+}
+
+
+// In case we are on a deployment branch and build was a success,
+// We have to kick off deployment as well.
+// Have to do start this outside of a node, as we may have an approval step
+if (currentBuild.result == 'SUCCESS') {
+
+    switch (env.BRANCH_NAME) {
         case 'master':
+
+            stage 'Approve'
+
+            mail(to: 'g.weis@griffith.edu.au',
+                 subject: "Job '${env.JOB_NAME}' (${env.BUILD_NUMBER}) is waiting for input",
+                 body: "Please go to ${env.BUILD_URL}.");
+
+            slackSend color: 'good', message: "Ready to deploy ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+
+            input 'Ready to deploy?';
+
         case 'qa':
-            stage 'Image Push'
+        case 'develop':
 
-            img.push(imagetag)
-            //img.push('latest')
+            stage 'Deploy'
 
-            slackSend color: 'good', message: "New Image ${imagename}:${imagetag}\n${env.JOB_URL}"
+            node {
 
-            break
+                deploy('BCCVL', env.BRANCH_NAME, imagename)
+
+                slackSend color: 'good', message: "Deployed ${env.JOB_NAME} ${env.BUILD_NUMBER}"
+
+            }
+
     }
 
 }
 
-switch(env.BRANCH_NAME) {
 
-    case 'master':
 
-        stage 'Approve'
+def publish_test_results(prefix='') {
+    // capture unit test outputs in jenkins
+    step([$class: 'JUnitResultArchiver', testResults: "${prefix}/parts/jenkins-test/testreports/*.xml"])
 
-        mail(to: 'g.weis@griffith.edu.au',
-             subject: "Job '${env.JOB_NAME}' (${env.BUILD_NUMBER}) is waiting for input",
-             body: "Please go to ${env.BUILD_URL}.");
+    // capture coverage report
+    //publishHTML(target:[allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: "${prefix}/parts/jenkins-test/coverage-report", reportFiles: 'index.html', reportName: 'Coverage Report'])
 
-        slackSend color: 'good', message: "Ready to deploy ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
-
-        input 'Ready to deploy?';
-
-    case 'feature/develop_docker':
-    case 'qa':
-
-        stage 'Deploy'
-
-        node {
-
-            deploy("BCCVL", env.BRANCH_NAME, "${imagename}:${imagetag}")
-
-            slackSend color: 'good', message: "Deployed ${env.JOB_NAME} ${env.BUILD_NUMBER}"
-
-        }
-
-        break
-
+    // capture robot result
+    step([$class: 'RobotPublisher',
+          outputPath: "${prefix}/parts/jenkins-test",
+          outputFileName: 'robot_output.xml',
+          disableArchiveOutput: false,
+          reportFileName: 'robot_report.html',
+          logFileName: 'robot_log.html',
+          passThreshold: 90,
+          unstableThreshold: 100,
+          onlyCritical: false,
+          otherFiles: '',
+          enableCache: false])
 }
