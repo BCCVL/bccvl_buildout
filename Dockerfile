@@ -1,5 +1,7 @@
 FROM hub.bccvl.org.au/bccvl/bccvlbase:2016-08-22
 
+ARG BUILDOUT_CFG=buildout.cfg
+
 # Setup environment variables
 ENV BCCVL_USER bccvl
 ENV BCCVL_HOME /opt/${BCCVL_USER}
