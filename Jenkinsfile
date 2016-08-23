@@ -69,8 +69,12 @@ node {
             def container = image.run('-t -v /etc/machine-id:/etc/machine-id', 'cat')
 
             try {
+                // TODO: maybe do exec echo ${BCCVL_USER} and exec pwd to get user name and workdir?
 
-                sh "docker exec -u bccvl ${container.id} 'CELERY_CONFIG_MODULE=\'\' xvfb-run -l -a ./bin/jenkins-test-coverage'"
+                // FIXME: is the chown really necessary? should we change the build process here?
+                sh 'docker exec ${container.id} chown -R bccvl:bccvl parts'
+
+                sh "docker exec -u bccvl:bccvl ${container.id} bash -c 'CELERY_CONFIG_MODULE= xvfb-run -l -a ./bin/jenkins-test-coverage'"
 
                 sh "docker cp ${container.id}:/opt/bccvl/parts/jenkins-test jenkins-test"
 
