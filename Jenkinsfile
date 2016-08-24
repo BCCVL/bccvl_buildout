@@ -15,6 +15,11 @@ node {
         // fetch source
         stage 'Checkout'
 
+        if (['feature/develop_decker', 'master', 'qa'].contains(env.BRANCH_NAME)) {
+            // clean up workspace for a fresh image build
+            gitClean()
+        }
+
         checkout scm
 
         // buildout
@@ -120,7 +125,7 @@ node {
             if (currentBuild.result == 'SUCCESS') {
 
                 image.push();
-                slackSend color: 'good', message: "New Image ${imagename}:${imagetag}\n${env.JOB_URL}"
+                slackSend color: 'good', message: "New Image ${imagename}\n${env.JOB_URL}"
 
             } else {
                 // we should abort the pipeline in any case
