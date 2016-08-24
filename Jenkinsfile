@@ -15,7 +15,7 @@ node {
         // fetch source
         stage 'Checkout'
 
-        if (['feature/develop_decker', 'master', 'qa'].contains(env.BRANCH_NAME)) {
+        if (['feature/develop_docker', 'master', 'qa'].contains(env.BRANCH_NAME)) {
             // clean up workspace for a fresh image build
             gitClean()
         }
