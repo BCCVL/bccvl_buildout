@@ -15,26 +15,58 @@ node {
         // fetch source
         stage 'Checkout'
 
-        if (['feature/develop_docker', 'master', 'qa'].contains(env.BRANCH_NAME)) {
+        if (['develop', 'master', 'qa'].contains(env.BRANCH_NAME)) {
             // clean up workspace for a fresh image build
             gitClean()
         }
 
         checkout scm
 
+        // clone depentent repos
+        // map sub repos to branch/tag refs
+        // has to be a list of lists otherwise we can't use plain c-style iteration.
+        //     other types of iteration usually involve an iterator which can't be serialized and would require some @NonCPS workaround
+        def subrepos = [
+            ['org.bccvl.movelib', 'refs/heads/develop'],
+            ['org.bccvl.tasks', 'refs/heads/develop'],
+            ['org.bccvl.compute', 'refs/heads/develop'],
+            ['org.bccvl.theme', 'refs/heads/develop'],
+            ['org.bccvl.site', 'refs/heads/develop'],
+            ['org.bccvl.testsetup', 'refs/heads/develop']
+        ]
+        // iterate over map and clone into current workspace subfolder
+        for (int i=0; i < subrepos.size(); i++) {
+            def repo = subrepos[i][0]
+            def refspec = subrepos[i][1]
+            checkout(poll: false,
+                     scm: [$class: 'GitSCM',
+                           branches: [[name: refspec]],
+                           extensions: [
+                               [$class: 'RelativeTargetDirectory', relativeTargetDir: "files/src/${repo}"],
+                               [$class: 'CleanBeforeCheckout'],
+                               [$class: 'PruneStaleBranch']
+                            ],
+                            userRemoteConfigs: [
+                                [url: "https://github.com/BCCVL/${repo}"]
+                            ]
+                        ]
+                    )
+        }
+
         // buildout
         stage 'Build'
 
         def image = null;
 
-        if (['feature/develop_docker', 'master', 'qa'].contains(env.BRANCH_NAME)) {
+        if (['develop', 'master', 'qa'].contains(env.BRANCH_NAME)) {
             // some branch we want to build an image from
             // build into image
 
             def tag = null;
             def build_args = null;
-            if (env.BRANCH_NAME == 'feature/develop_docker') {
+            if (env.BRANCH_NAME == 'develop') {
                 tag = 'latest';
+                // TODO: do I need to supply --no-cache as well?
                 build_args = "--build-arg BUILDOUT_CFG=develop.cfg ."
             } else {
                 // it is important here, that all package versions are pinned, so that build out repo get's at least a new 'revision-number' after last tag
@@ -68,7 +100,7 @@ node {
 
         stage 'Test'
 
-        if (['feature/develop_docker', 'master', 'qa'].contains(env.BRANCH_NAME)) {
+        if (['develop', 'master', 'qa'].contains(env.BRANCH_NAME)) {
             // run tests inside freshly built image
 
             def container = image.run('-t -v /etc/machine-id:/etc/machine-id', 'cat')
@@ -81,7 +113,6 @@ node {
 
                 sh "docker exec -u bccvl:bccvl ${container.id} bash -c 'CELERY_CONFIG_MODULE= xvfb-run -l -a ./bin/jenkins-test-coverage'"
 
-                // TODO: remove results folder in case old results are still there? (maybe remove before starting container)
                 sh "docker cp ${container.id}:/opt/bccvl/parts files/parts/"
             } finally {
                 container.stop()
@@ -117,7 +148,7 @@ node {
              otherFiles: '',
              enableCache: false])
 
-        if (['feature/develop_docker', 'qa', 'master'].contains(env.BRANCH_NAME)) {
+        if (['develop', 'qa', 'master'].contains(env.BRANCH_NAME)) {
             // we want to push and deploy our image from these branches
 
             stage 'Push Image'
@@ -165,7 +196,7 @@ if (currentBuild.result == 'SUCCESS') {
             input 'Ready to deploy?';
 
         case 'qa':
-        case 'feature/develop_docker':
+        case 'develop':
 
             stage 'Deploy'
 
