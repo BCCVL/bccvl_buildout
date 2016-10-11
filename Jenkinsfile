@@ -15,7 +15,7 @@ node {
         // fetch source
         stage 'Checkout'
 
-        if (['develop', 'master', 'qa'].contains(env.BRANCH_NAME)) {
+        if (['feature/develop_docker', 'master', 'qa'].contains(env.BRANCH_NAME)) {
             // clean up workspace for a fresh image build
             gitClean()
         }
@@ -58,13 +58,13 @@ node {
 
         def image = null;
 
-        if (['develop', 'master', 'qa'].contains(env.BRANCH_NAME)) {
+        if (['feature/develop_docker', 'master', 'qa'].contains(env.BRANCH_NAME)) {
             // some branch we want to build an image from
             // build into image
 
             def tag = null;
             def build_args = null;
-            if (env.BRANCH_NAME == 'develop') {
+            if (env.BRANCH_NAME == 'feature/develop_docker') {
                 tag = 'latest';
                 // TODO: do I need to supply --no-cache as well?
                 build_args = "--build-arg BUILDOUT_CFG=develop.cfg ."
@@ -100,7 +100,7 @@ node {
 
         stage 'Test'
 
-        if (['develop', 'master', 'qa'].contains(env.BRANCH_NAME)) {
+        if (['feature/develop_docker', 'master', 'qa'].contains(env.BRANCH_NAME)) {
             // run tests inside freshly built image
 
             def container = image.run('-t -v /etc/machine-id:/etc/machine-id', 'cat')
@@ -148,7 +148,7 @@ node {
              otherFiles: '',
              enableCache: false])
 
-        if (['develop', 'qa', 'master'].contains(env.BRANCH_NAME)) {
+        if (['feature/develop_docker', 'qa', 'master'].contains(env.BRANCH_NAME)) {
             // we want to push and deploy our image from these branches
 
             stage 'Push Image'
@@ -196,7 +196,7 @@ if (currentBuild.result == 'SUCCESS') {
             input 'Ready to deploy?';
 
         case 'qa':
-        case 'develop':
+        case 'feature/develop_docker':
 
             stage 'Deploy'
 
