@@ -14,7 +14,7 @@ ENV TZ AEST-10
 RUN groupadd -g 414 ${BCCVL_USER} && \
     useradd -u 414 -g 414 -d ${BCCVL_HOME} -m -s /bin/bash ${BCCVL_USER}
 
-COPY files/* ${BCCVL_HOME}/
+COPY files/ ${BCCVL_HOME}/
 
 WORKDIR ${BCCVL_HOME}
 
