@@ -1,6 +1,12 @@
-FROM hub.bccvl.org.au/bccvl/bccvlbase:2016-08-22
+FROM hub.bccvl.org.au/bccvl/bccvlbase:2017-02-20
 
-ARG BUILDOUT_CFG=buildout.cfg
+
+# configure pypi index to use
+ARG PIP_INDEX_URL
+ARG PIP_TRUSTED_HOST
+# If set, pip will look for pre releases
+ARG PIP_PRE
+
 
 # Setup environment variables
 ENV BCCVL_USER bccvl
@@ -18,7 +24,11 @@ COPY files/ ${BCCVL_HOME}/
 
 WORKDIR ${BCCVL_HOME}
 
-RUN ${BCCVL_HOME}/build.sh
+RUN pip install -r requirement-build.txt && \
+    mkdir ~/.buildout && \
+    echo -e "[buildout]\nindex = ${PIP_INDEX_URL}" >> ~/.buildout/default.cfg && \
+    buildout && \
+    rm -fr "~/.buildout"
 
 ENV Z_CONFIG_FILE $BCCVL_HOME/parts/instance/etc/zope.conf
 ENV BCCVL_CONFIG ${BCCVL_HOME}/bccvl.ini
