@@ -38,10 +38,10 @@ node ('docker') {
         stage('Test') {
             // image inside runs within jenkins workspace
             img.inside('-u bccvl:bccvl') {
-                echo "${BCCVL_HOME}"
-                sh 'env'
+                def bccvl_home = sh(script: 'echo ${BCCVL_HOME}'
+                                    returnStdout: True)
                 sh 'dbus-uuidgen > /etc/machine-id'
-                sh 'cd ${BCCVL_HOME}; CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage '
+                sh 'cd ${BCCVL_HOME}; CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage'
 
                 // capture test result
                 step([
@@ -53,14 +53,14 @@ node ('docker') {
                     tools: [
                         [$class: 'JUnitType', deleteOutputFiles: true,
                                               failIfNotNew: true,
-                                              pattern: 'parts/jenkins-test/testreport/*.xml',
+                                              pattern: "${bccvl_home}/parts/jenkins-test/testreport/*.xml",
                                               stopProcessingIfError: true]
                     ]
                 ])
 
                 // capture robot result
                 step([$class: 'RobotPublisher',
-                      outputPath: "parts/jenkins-test",
+                      outputPath: "${bccvl_home}/parts/jenkins-test",
                       outputFileName: 'robot_output.xml',
                       disableArchiveOutput: false,
                       reportFileName: 'robot_report.html',
