@@ -36,12 +36,12 @@ node ('docker') {
         }
 
         stage('Test') {
-            img.inside('-u root') {
-                sh 'echo $(pwd)'
-                sh 'ls -l'
-                sh 'ls -l bin'
+            // image inside runs within jenkins workspace
+            img.inside('-u bccvl:bccvl') {
+                echo "${BCCVL_HOME}"
+                sh 'env'
                 sh 'dbus-uuidgen > /etc/machine-id'
-                sh 'CELERY_CONFIG_MODULE= xvfb-run -l -a ./bin/jenkins-test-coverage'
+                sh 'cd ${BCCVL_HOME}; CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage '
 
                 // capture test result
                 step([
