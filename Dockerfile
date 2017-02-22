@@ -11,7 +11,7 @@ ARG PIP_PRE
 # Setup environment variables
 ENV BCCVL_USER bccvl
 ENV BCCVL_HOME /opt/${BCCVL_USER}
-ENV BCCVL_VAR /var/opt/${BCCCVL_USER}
+ENV BCCVL_VAR /var/opt/${BCCVL_USER}
 ENV BCCVL_ETC /etc/opt/${BCCVL_USER}
 
 ENV TZ AEST-10
@@ -24,11 +24,20 @@ COPY files/ ${BCCVL_HOME}/
 
 WORKDIR ${BCCVL_HOME}
 
-RUN pip install -r requirement-build.txt && \
+RUN mkdir -p $BCCVL_VAR && \
+    mkdir -p $BCCVL_ETC && \
+    pip install -r requirements-build.txt && \
     mkdir ~/.buildout && \
-    echo -e "[buildout]\nindex = ${PIP_INDEX_URL}" >> ~/.buildout/default.cfg && \
+    echo -e "[buildout]\nindex = ${PIP_INDEX_URL}" > ~/.buildout/default.cfg && \
     buildout && \
-    rm -fr "~/.buildout"
+# compile all po files
+    for po in $(find . -path '*/LC_MESSAGES/*.po'); do msgfmt -o ${po/%po/mo} $po; done && \
+    chown -R ${BCCVL_USER}:${BCCVL_USER} $BCCVL_ETC && \
+    chown -R ${BCCVL_USER}:${BCCVL_USER} $BCCVL_VAR && \
+# make sure all files and folders are accessible by bccvl user
+    find eggs -type f -exec chmod 644 {} + && \
+    find eggs -type d -exec chmod 755 {} + && \
+    rm -fr ~/.buildout
 
 ENV Z_CONFIG_FILE $BCCVL_HOME/parts/instance/etc/zope.conf
 ENV BCCVL_CONFIG ${BCCVL_HOME}/bccvl.ini
@@ -36,7 +45,7 @@ ENV CELERY_CONFIG_MODULE celeryconfig
 
 EXPOSE 8080
 
-VOLUME ${BCCVL_HOME}/var
+VOLUME ${BCCVL_VAR}
 
 COPY entrypoint.sh cmd.sh /
 
