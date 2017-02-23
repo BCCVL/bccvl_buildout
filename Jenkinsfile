@@ -38,17 +38,12 @@ node ('docker') {
         stage('Test') {
             // image inside runs within jenkins workspace
             img.inside('-u bccvl:bccvl') {
-                sh 'env'
-                echo 'step1'
                 def bccvl_home = sh(script: 'echo ${BCCVL_HOME}',
-                                    returnStdout: True)
-                echo 'step2'
+                                    returnStdout: true)
                 sh 'dbus-uuidgen > /etc/machine-id'
-                echo 'step3'
                 sh 'cd ${BCCVL_HOME}; CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage'
 
                 // capture test result
-                echo 'step4'
                 step([
                     $class: 'XUnitBuilder',
                     thresholds: [
@@ -62,7 +57,6 @@ node ('docker') {
                                               stopProcessingIfError: true]
                     ]
                 ])
-                echo 'step5'
                 // capture robot result
                 step([$class: 'RobotPublisher',
                       outputPath: "${bccvl_home}/parts/jenkins-test",
