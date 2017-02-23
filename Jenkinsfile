@@ -38,8 +38,8 @@ node ('docker') {
         stage('Test') {
             // image inside runs within jenkins workspace
             img.inside('-u bccvl:bccvl') {
-                def bccvl_home = sh(script: 'echo ${BCCVL_HOME}',
-                                    returnStdout: true)
+                def bccvl_home = sh(script: 'echo -n ${BCCVL_HOME}',
+                                    returnStdout: true).trim()
                 sh 'dbus-uuidgen > /etc/machine-id'
                 sh 'cd ${BCCVL_HOME}; CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage'
 
