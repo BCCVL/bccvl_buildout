@@ -36,24 +36,24 @@ node('docker') {
                         tools: [
                             [$class: 'JUnitType', deleteOutputFiles: true,
                                                   failIfNotNew: true,
-                                                  pattern: "virtualenv/files/parts/jenkins-test/testreports/*.xml",
+                                                  pattern: "files/parts/jenkins-test/testreports/*.xml",
                                                   stopProcessingIfError: true]
                         ]
                     ])
                     // capture robot result
-                    step([$class: 'RobotPublisher',
-                          outputPath: "virtualenv/files/parts/jenkins-test",
-                          outputFileName: 'robot_output.xml',
-                          disableArchiveOutput: false,
-                          reportFileName: 'robot_report.html',
-                          logFileName: 'robot_log.html',
-                          passThreshold: 90,
-                          unstableThreshold: 100,
-                          onlyCritical: false,
-                          otherFiles: '',
-                          enableCache: false])
-
-                    }
+                    step([
+                        $class: 'RobotPublisher',
+                        outputPath: "files/parts/jenkins-test",
+                        outputFileName: 'robot_output.xml',
+                        disableArchiveOutput: false,
+                        reportFileName: 'robot_report.html',
+                        logFileName: 'robot_log.html',
+                        passThreshold: 90,
+                        unstableThreshold: 100,
+                        onlyCritical: false,
+                        otherFiles: '',
+                        enableCache: false
+                    ])
 
                 }
             }
