@@ -41,7 +41,7 @@ node ('docker') {
                 def bccvl_home = sh(script: 'echo -n ${BCCVL_HOME}',
                                     returnStdout: true).trim()
                 sh 'dbus-uuidgen > /etc/machine-id'
-                sh 'curl -SO https://github.com/mozilla/geckodriver/releases/download/v0.14.0/geckodriver-v0.14.0-linux64.tar.gz | tar zxv - -C /usr/local/bin'
+                sh 'curl -SL https://github.com/mozilla/geckodriver/releases/download/v0.14.0/geckodriver-v0.14.0-linux64.tar.gz | tar zxv - -C /usr/local/bin'
                 sh 'cd ${BCCVL_HOME}; CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage'
 
                 // capture test result
