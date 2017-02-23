@@ -38,12 +38,17 @@ node ('docker') {
         stage('Test') {
             // image inside runs within jenkins workspace
             img.inside('-u bccvl:bccvl') {
+                sh 'env'
+                echo 'step1'
                 def bccvl_home = sh(script: 'echo ${BCCVL_HOME}',
                                     returnStdout: True)
+                echo 'step2'
                 sh 'dbus-uuidgen > /etc/machine-id'
+                echo 'step3'
                 sh 'cd ${BCCVL_HOME}; CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage'
 
                 // capture test result
+                echo 'step4'
                 step([
                     $class: 'XUnitBuilder',
                     thresholds: [
@@ -57,7 +62,7 @@ node ('docker') {
                                               stopProcessingIfError: true]
                     ]
                 ])
-
+                echo 'step5'
                 // capture robot result
                 step([$class: 'RobotPublisher',
                       outputPath: "${bccvl_home}/parts/jenkins-test",
@@ -74,7 +79,7 @@ node ('docker') {
 
             img.withRun() { bccvl ->
 
-                def address = sh(script: "docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${visualiser.id}",
+                def address = sh(script: "docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${bccvl.id}",
                                  returnStdout: true).trim()
 
                 img.inside("--add-host=bccvl:${address}") {
