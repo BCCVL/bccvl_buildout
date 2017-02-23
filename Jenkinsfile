@@ -92,11 +92,11 @@ node ('docker') {
 
     }
     catch (err) {
-        throw error
+        throw err
     }
     finally {
         stage('Cleanup') {
-            sh "docker rmi ${img.id}"
+            //sh "docker rmi ${img.id}"
         }
     }
 
