@@ -24,7 +24,8 @@ COPY files/ ${BCCVL_HOME}/
 
 WORKDIR ${BCCVL_HOME}
 
-RUN mkdir -p $BCCVL_VAR && \
+RUN curl -SL https://github.com/mozilla/geckodriver/releases/download/v0.14.0/geckodriver-v0.14.0-linux64.tar.gz | tar zxv - -C /usr/local/bin && \
+    mkdir -p $BCCVL_VAR && \
     mkdir -p $BCCVL_ETC && \
     pip install -r requirements-build.txt && \
     mkdir ~/.buildout && \
