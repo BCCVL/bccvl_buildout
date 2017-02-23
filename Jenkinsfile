@@ -1,47 +1,40 @@
-node ('docker') {
+pipeline {
 
-
-    def basename = 'hub.bccvl.org.au/bccvl/bccvl'
-    def imgversion = env.BUILD_NUMBER
-    def img = null
-    def version = null
-
-    def pip_index_url = "http://${env.PIP_INDEX_HOST}:3141/bccvl/dev/+simple/"
-    def pip_pre = "True"
-    if (env.BRANCH_NAME == 'master') {
-        pip_index_url = "http://${env.PIP_INDEX_HOST}:3141/bccvl/prod/+simple/"
-        pip_pre = "False"
+    agent {
+        docker {
+            image 'hub.bccvl.org.au/bccvl/bccvlbase:2017-02-20'
+        }
     }
 
-
-    try {
-
-        stage('Checkout') {
-            checkout scm
-            sh 'git clean -x -d -f -f -e "eggs"'
-        }
+    stages {
 
         stage('Build') {
 
-            img = docker.build("${basename}:${imgversion}",
-                               "--rm --pull --build-arg PIP_INDEX_URL=${pip_index_url} --build-arg PIP_TRUSTED_HOST=${env.PIP_INDEX_HOST} --build-arg PIP_PRE=${pip_pre} .")
+            steps {
 
-            def gittag = getGitTag()
-            if (gittag) {
-                imgversion = gittag
-            } else {
-                imgversion = 'latest'
+                // clean environment (keep eggs)
+                sh 'git clean -x -d -f -e "eggs"'
+
+                withPyPi() {
+                    // we should be inside the container with the workspace mounted at current working dir
+                    // and running as jenkins user (should have read/write access to workspace)
+                    // we need a virtual env here
+                    sh 'virtualenv -p python2.7 --system-site-packages ./virtualenv'
+                    sh 'virtualenv --relocatable ./virtualenv'
+                    // convert virtualenv to relocatable to avoid problems with too long shebangs
+                    sh '. ./virtualenv/bin/activate; pip install -r files/requirements-build.txt'
+                    sh 'virtualenv --relocatable ./virtualenv'
+                    sh '. ./virtualenv/bin/activate; cd files; buildout'
+                }
+
             }
-            img = reTagImage(img, basename, imgversion)
+
         }
 
         stage('Test') {
-            // image inside runs within jenkins workspace
-            img.inside('-u bccvl:bccvl') {
-                def bccvl_home = sh(script: 'echo -n ${BCCVL_HOME}',
-                                    returnStdout: true).trim()
-                sh 'dbus-uuidgen > /etc/machine-id'
-                sh 'cd ${BCCVL_HOME}; CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage'
+
+            steps {
+                sh '. ./virtualenv/bin/activate; cd files; CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage'
 
                 // capture test result
                 step([
@@ -53,13 +46,13 @@ node ('docker') {
                     tools: [
                         [$class: 'JUnitType', deleteOutputFiles: true,
                                               failIfNotNew: true,
-                                              pattern: "${bccvl_home}/parts/jenkins-test/testreport/*.xml",
+                                              pattern: "virtualenv/files/parts/jenkins-test/testreports/*.xml",
                                               stopProcessingIfError: true]
                     ]
                 ])
                 // capture robot result
                 step([$class: 'RobotPublisher',
-                      outputPath: "${bccvl_home}/parts/jenkins-test",
+                      outputPath: "virtualenv/files/parts/jenkins-test",
                       outputFileName: 'robot_output.xml',
                       disableArchiveOutput: false,
                       reportFileName: 'robot_report.html',
@@ -69,35 +62,36 @@ node ('docker') {
                       onlyCritical: false,
                       otherFiles: '',
                       enableCache: false])
+
+
             }
 
-            img.withRun() { bccvl ->
-
-                def address = sh(script: "docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${bccvl.id}",
-                                 returnStdout: true).trim()
-
-                img.inside("--add-host=bccvl:${address}") {
-                    sh 'curl --fail --silent --show-error --retry 5 --retry-delay 1 http://bccvl:8000/ > /dev/null'
-                }
-            }
-        }
-
-        stage('Publish') {
-            if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
-                img.push()
-
-                slackSend color: 'good', message: "New Image ${img.id}\n${env.JOB_URL}"
-            }
         }
 
     }
-    catch (err) {
-        throw err
-    }
-    finally {
-        stage('Cleanup') {
-            //sh "docker rmi ${img.id}"
+
+    post {
+
+        always {
+            echo "This runs always"
+
+            // clean git clone (removes all build files like virtualenv etc..)
+            sh 'git clean -x -d -f -e "eggs"'
+
+            // does this plugin get committer emails by themselves?
+            // alternative would be to put get commiter email ourselves, and list of people who need to be notified
+            // and put mail(...) step into each appropriate section
+            // => would this then send 2 emails? e.g. changed + state email?
+            step([
+                $class: 'Mailer',
+                notifyEveryUnstableBuild: true,
+                recipients: 'gerhard.weis@gmail.com ' + emailextrecipients([
+                    [$class: 'CulpritsRecipientProvider'],
+                    [$class: 'RequesterRecipientProvider']
+                ])
+            ])
         }
+
     }
 
 }
