@@ -82,7 +82,27 @@ node ('docker') {
                                  returnStdout: true).trim()
 
                 img.inside("--add-host=bccvl:${address}") {
-                    sh 'curl --fail --silent --show-error --retry 10 --retry-delay 5 http://bccvl:8080/ > /dev/null'
+                    // curl returns exitcode 7 on connection refused .. server not yet ready
+                    // let's retry a few times
+                    def r = -1
+                    for (int i=0; i < 5 ; i++) {
+                        r = sh(script:'curl --fail --silent --show-error --retry 10 --retry-delay 5 http://bccvl:8080/ > /dev/null',
+                                   returnStatus: true)
+                        if (r == 0) {
+                            // all good
+                            break
+                        } else if (r == 7) {
+                            // connection refused; server not up yet?
+                            // wait and try again
+                            sleep 5
+                        } else {
+                            // something went wrong
+                            error('Build failed because test server did not start up correctly')
+                        }
+                    }
+                    if (r != 0) {
+                        error('Build failed, test server refused connection')
+                    }
                 }
             }
         }
