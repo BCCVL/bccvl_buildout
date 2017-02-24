@@ -10,7 +10,7 @@ node('docker') {
 
         // start up build container
         def img = docker.image('hub.bccvl.org.au/bccvl/bccvlbase:2017-02-23')
-        img.inside() {
+        img.inside('-v /etc/machine-id:/etc/machine-id') {
 
             withVirtualenv() {
 

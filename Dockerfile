@@ -1,4 +1,4 @@
-FROM hub.bccvl.org.au/bccvl/bccvlbase:2017-02-20
+FROM hub.bccvl.org.au/bccvl/bccvlbase:2017-02-23
 
 
 # configure pypi index to use
@@ -24,8 +24,7 @@ COPY files/ ${BCCVL_HOME}/
 
 WORKDIR ${BCCVL_HOME}
 
-RUN curl -SLs https://github.com/mozilla/geckodriver/releases/download/v0.14.0/geckodriver-v0.14.0-linux64.tar.gz | tar -zxvf - -C /usr/local/bin && \
-    mkdir -p $BCCVL_VAR && \
+RUN mkdir -p $BCCVL_VAR && \
     mkdir -p $BCCVL_ETC && \
     pip install -r requirements-build.txt && \
     mkdir ~/.buildout && \
