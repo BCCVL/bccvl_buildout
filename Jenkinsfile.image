@@ -36,45 +36,46 @@ node ('docker') {
         }
 
         stage('Test') {
-            def bccvl_home = null
-            img.inside() {
-                // need to be jenkins user to get shell output from inside container
-                bccvl_home = sh(script: 'echo -n ${BCCVL_HOME}',
-                                returnStdout: true).trim()
-            }
-            // image inside runs within jenkins workspace mounted
+            // image inside runs within jenkins workspace mounted and workdir set to the workspace as well
             img.inside('-u root:root') {
                 sh 'dbus-uuidgen > /etc/machine-id'
                 sh 'cd ${BCCVL_HOME}; CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage'
 
-                // capture test result
-                step([
-                    $class: 'XUnitBuilder',
-                    thresholds: [
-                        [$class: 'FailedThreshold', failureThreshold: '0',
-                                                    unstableThreshold: '1']
-                    ],
-                    tools: [
-                        [$class: 'JUnitType', deleteOutputFiles: true,
-                                              failIfNotNew: true,
-                                              pattern: "${bccvl_home}/parts/jenkins-test/testreports/*.xml",
-                                              stopProcessingIfError: true]
-                    ]
-                ])
-                // capture robot result
-                step([$class: 'RobotPublisher',
-                      outputPath: "${bccvl_home}/parts/jenkins-test",
-                      outputFileName: 'robot_output.xml',
-                      disableArchiveOutput: false,
-                      reportFileName: 'robot_report.html',
-                      logFileName: 'robot_log.html',
-                      passThreshold: 90,
-                      unstableThreshold: 100,
-                      onlyCritical: false,
-                      otherFiles: '',
-                      enableCache: false])
+                // jenkins can't read test results from inside container ... so let's copy them into the workspace
+                sh 'cp -r ${BCCVL_HOME}/parts/jenkins-test .'
+                // and give jenkins ownership
+                sh 'chown -R 1000:1000 jenkins-test'
             }
+            // capture test result
+            step([
+                $class: 'XUnitBuilder',
+                thresholds: [
+                    [$class: 'FailedThreshold', failureThreshold: '0',
+                                                unstableThreshold: '1']
+                ],
+                tools: [
+                    [$class: 'JUnitType', deleteOutputFiles: true,
+                                          failIfNotNew: true,
+                                          pattern: "jenkins-test/testreports/*.xml",
+                                          stopProcessingIfError: true]
+                ]
+            ])
+            // capture robot result
+            step([
+                $class: 'RobotPublisher',
+                outputPath: "jenkins-test",
+                outputFileName: 'robot_output.xml',
+                disableArchiveOutput: false,
+                reportFileName: 'robot_report.html',
+                logFileName: 'robot_log.html',
+                passThreshold: 90,
+                unstableThreshold: 100,
+                onlyCritical: false,
+                otherFiles: '',
+                enableCache: false
+            ])
 
+            // check if container starts up properly
             img.withRun() { bccvl ->
 
                 def address = sh(script: "docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${bccvl.id}",
