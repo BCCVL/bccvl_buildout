@@ -101,7 +101,11 @@ node ('docker') {
     }
     finally {
         stage('Cleanup') {
-            sh "docker rmi ${img.id}"
+            // TODO: shall we keep the image? ... probably not as docker won't detect changes in src folders and therefore
+            //       wouldn't rebuild with new sources
+            if (img != null) {
+                sh "docker rmi ${img.id}"
+            }
         }
     }
 
