@@ -16,9 +16,6 @@ node('docker') {
 
                 stage('Build') {
                     sh '. ${VIRTUALENV}/bin/activate; pip install -r files/requirements-build.txt'
-                    // setup git for buildout
-                    sh 'git config --global user.name Jenkins'
-                    sh 'git config --global user.email jenkins@bccvl.nectar.org.au'
                     // run build
                     sh '. ${VIRTUALENV}/bin/activate; cd files; buildout'
                 }
