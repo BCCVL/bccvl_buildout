@@ -23,9 +23,10 @@ node ('docker') {
 
         stage('Build') {
 
-            img = docker.build("${basename}:${imgversion}",
-                               "--rm --pull --build-arg PIP_INDEX_URL=${pip_index_url} --build-arg PIP_TRUSTED_HOST=${env.PIP_INDEX_HOST} --build-arg PIP_PRE=${pip_pre} .")
-
+            docker.withRegistry('hub.bccvl.org.au', 'hub.bccvl.org.au') {
+                img = docker.build("${basename}:${imgversion}",
+                                   "--rm --pull --build-arg PIP_INDEX_URL=${pip_index_url} --build-arg PIP_TRUSTED_HOST=${env.PIP_INDEX_HOST} --build-arg PIP_PRE=${pip_pre} .")
+            }
             def gittag = getGitTag()
             if (gittag) {
                 imgversion = gittag
@@ -109,7 +110,9 @@ node ('docker') {
 
         stage('Publish') {
             if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
-                img.push()
+                docker.withRegistry('hub.bccvl.org.au', 'hub.bccvl.org.au') {
+                    img.push()
+                }
 
                 slackSend color: 'good', message: "New Image ${img.id}\n${env.JOB_URL}"
             }

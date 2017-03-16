@@ -10,48 +10,50 @@ node('docker') {
 
         // start up build container
         def img = docker.image('hub.bccvl.org.au/bccvl/bccvlbase:2017-02-23')
-        img.inside('-v /etc/machine-id:/etc/machine-id') {
+        docker.withRegistry('hub.bccvl.org.au', 'hub.bccvl.org.au') {
+            img.inside('-v /etc/machine-id:/etc/machine-id') {
 
-            withVirtualenv() {
+                withVirtualenv() {
 
-                stage('Build') {
-                    sh '. ${VIRTUALENV}/bin/activate; pip install -r files/requirements-build.txt'
-                    // run build
-                    sh '. ${VIRTUALENV}/bin/activate; cd files; buildout'
-                }
+                    stage('Build') {
+                        sh '. ${VIRTUALENV}/bin/activate; pip install -r files/requirements-build.txt'
+                        // run build
+                        sh '. ${VIRTUALENV}/bin/activate; cd files; buildout'
+                    }
 
-                stage('Test') {
-                    sh '. ${VIRTUALENV}/bin/activate; cd files; CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage'
+                    stage('Test') {
+                        sh '. ${VIRTUALENV}/bin/activate; cd files; CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage'
 
-                    // capture test result
-                    step([
-                        $class: 'XUnitBuilder',
-                        thresholds: [
-                            [$class: 'FailedThreshold', failureThreshold: '0',
-                                                        unstableThreshold: '1']
-                        ],
-                        tools: [
-                            [$class: 'JUnitType', deleteOutputFiles: true,
-                                                  failIfNotNew: true,
-                                                  pattern: "files/parts/jenkins-test/testreports/*.xml",
-                                                  stopProcessingIfError: true]
-                        ]
-                    ])
-                    // capture robot result
-                    step([
-                        $class: 'RobotPublisher',
-                        outputPath: "files/parts/jenkins-test",
-                        outputFileName: 'robot_output.xml',
-                        disableArchiveOutput: false,
-                        reportFileName: 'robot_report.html',
-                        logFileName: 'robot_log.html',
-                        passThreshold: 90,
-                        unstableThreshold: 100,
-                        onlyCritical: false,
-                        otherFiles: '',
-                        enableCache: false
-                    ])
+                        // capture test result
+                        step([
+                            $class: 'XUnitBuilder',
+                            thresholds: [
+                                [$class: 'FailedThreshold', failureThreshold: '0',
+                                                            unstableThreshold: '1']
+                            ],
+                            tools: [
+                                [$class: 'JUnitType', deleteOutputFiles: true,
+                                                      failIfNotNew: true,
+                                                      pattern: "files/parts/jenkins-test/testreports/*.xml",
+                                                      stopProcessingIfError: true]
+                            ]
+                        ])
+                        // capture robot result
+                        step([
+                            $class: 'RobotPublisher',
+                            outputPath: "files/parts/jenkins-test",
+                            outputFileName: 'robot_output.xml',
+                            disableArchiveOutput: false,
+                            reportFileName: 'robot_report.html',
+                            logFileName: 'robot_log.html',
+                            passThreshold: 90,
+                            unstableThreshold: 100,
+                            onlyCritical: false,
+                            otherFiles: '',
+                            enableCache: false
+                        ])
 
+                    }
                 }
             }
         }
