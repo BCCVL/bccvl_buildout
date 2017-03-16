@@ -23,7 +23,7 @@ node ('docker') {
 
         stage('Build') {
 
-            docker.withRegistry('hub.bccvl.org.au', 'hub.bccvl.org.au') {
+            docker.withRegistry('https://hub.bccvl.org.au', 'hub.bccvl.org.au') {
                 img = docker.build("${basename}:${imgversion}",
                                    "--rm --pull --build-arg PIP_INDEX_URL=${pip_index_url} --build-arg PIP_TRUSTED_HOST=${env.PIP_INDEX_HOST} --build-arg PIP_PRE=${pip_pre} .")
             }
@@ -110,7 +110,7 @@ node ('docker') {
 
         stage('Publish') {
             if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
-                docker.withRegistry('hub.bccvl.org.au', 'hub.bccvl.org.au') {
+                docker.withRegistry('https://hub.bccvl.org.au', 'hub.bccvl.org.au') {
                     img.push()
                 }
 
