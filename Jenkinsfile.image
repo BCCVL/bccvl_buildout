@@ -17,8 +17,8 @@ node ('docker') {
     try {
 
         stage('Checkout') {
+            sh(script: 'git clean -x -d -f -f -e "eggs"', returnStatus: true)
             checkout scm
-            sh 'git clean -x -d -f -f -e "eggs"'
         }
 
         stage('Build') {
