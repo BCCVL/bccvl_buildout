@@ -9,7 +9,7 @@ node('docker') {
         }
 
         // start up build container
-        def img = docker.image('hub.bccvl.org.au/bccvl/bccvlbase:2017-02-23')
+        def img = docker.image('hub.bccvl.org.au/bccvl/bccvlbase:2017-05-18')
         docker.withRegistry('https://hub.bccvl.org.au', 'hub.bccvl.org.au') {
             img.inside('-v /etc/machine-id:/etc/machine-id') {
 
