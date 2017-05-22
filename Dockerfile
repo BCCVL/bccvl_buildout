@@ -1,4 +1,4 @@
-FROM hub.bccvl.org.au/bccvl/bccvlbase:2017-02-23
+FROM hub.bccvl.org.au/bccvl/bccvlbase:2017-05-18
 
 
 # configure pypi index to use
