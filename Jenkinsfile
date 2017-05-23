@@ -52,6 +52,10 @@ node('docker') {
                             otherFiles: '',
                             enableCache: false
                         ])
+                        // capture coverage report
+                        step([$class: 'CoberturaPublisher',
+                              coberturaReportFile: 'files/parts/jenkins-test/coverage.xml']
+                        )
 
                     }
                 }
