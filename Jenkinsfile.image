@@ -6,10 +6,10 @@ node ('docker') {
     def img = null
     def version = null
 
-    def pip_index_url = "http://${env.PIP_INDEX_HOST}:3141/bccvl/dev/+simple/"
+    def PYPI_INDEX_CRED = 'pypi_index_url_dev'
     def pip_pre = "True"
     if (env.BRANCH_NAME == 'master') {
-        pip_index_url = "http://${env.PIP_INDEX_HOST}:3141/bccvl/prod/+simple/"
+        PYPI_INDEX_CRED = 'pypi_index_url_prod'
         pip_pre = "False"
     }
 
@@ -23,9 +23,10 @@ node ('docker') {
 
         stage('Build') {
 
-            docker.withRegistry('https://hub.bccvl.org.au', 'hub.bccvl.org.au') {
-                img = docker.build("${basename}:${imgversion}",
-                                   "--rm --pull --build-arg PIP_INDEX_URL=${pip_index_url} --build-arg PIP_TRUSTED_HOST=${env.PIP_INDEX_HOST} --build-arg PIP_PRE=${pip_pre} .")
+            withCredentials([string[credentialsId: PYPI_INDEX_CRED, variable: 'PYPI_INDEX_URL']])
+                docker.withRegistry('https://hub.bccvl.org.au', 'hub.bccvl.org.au') {
+                    img = docker.build("${basename}:${imgversion}",
+                                       "--rm --pull --build-arg PIP_INDEX_URL=${PYPI_INDEX_URL} --build-arg PIP_PRE=${pip_pre} .")
             }
             def gittag = getGitTag()
             if (gittag) {
@@ -38,14 +39,13 @@ node ('docker') {
 
         stage('Test') {
             // image inside runs within jenkins workspace mounted and workdir set to the workspace as well
-            img.inside('-u root:root') {
-                sh 'dbus-uuidgen > /etc/machine-id'
+            img.inside('-v /etc/machine-id:/etc/machine-id') {
                 sh 'cd ${BCCVL_HOME}; CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage'
 
                 // jenkins can't read test results from inside container ... so let's copy them into the workspace
                 sh 'cp -r ${BCCVL_HOME}/parts/jenkins-test .'
                 // and give jenkins ownership
-                sh 'chown -R 1000:1000 jenkins-test'
+                // sh 'chown -R 1000:1000 jenkins-test'
             }
             // capture test result
             step([
@@ -75,6 +75,12 @@ node ('docker') {
                 otherFiles: '',
                 enableCache: false
             ])
+            // capture test coverage
+            // capture coverage report
+            step([$class: 'CoberturaPublisher',
+                  coberturaReportFile: 'jenkins-test/coverage.xml']
+            )
+
 
             // check if container starts up properly
             img.withRun() { bccvl ->
