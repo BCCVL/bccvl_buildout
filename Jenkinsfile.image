@@ -23,10 +23,11 @@ node('docker') {
 
         stage('Build') {
 
-            withCredentials([string(credentialsId: PYPI_INDEX_CRED, variable: 'PYPI_INDEX_URL')])
+            withCredentials([string(credentialsId: PYPI_INDEX_CRED, variable: 'PYPI_INDEX_URL')]) {
                 docker.withRegistry('https://hub.bccvl.org.au', 'hub.bccvl.org.au') {
                     img = docker.build("${basename}:${imgversion}",
                                        "--rm --pull --build-arg PIP_INDEX_URL=${PYPI_INDEX_URL} --build-arg PIP_PRE=${pip_pre} .")
+                }
             }
             def gittag = getGitTag()
             if (gittag) {
