@@ -36,7 +36,7 @@ node('docker') {
             withCredentials([string(credentialsId: PYPI_INDEX_CRED, variable: 'PYPI_INDEX_URL')]) {
                 docker.withRegistry('https://hub.bccvl.org.au', 'hub.bccvl.org.au') {
                     img = docker.build("${basename}:${imgversion}",
-                                       "--rm --pull --build-arg PIP_INDEX_URL=${PYPI_INDEX_URL} --build-arg PIP_PRE=${pip_pre} BUILDOUT_ARGS='${BUILDOUT_ARGS}' .")
+                                       "--rm --pull --build-arg PIP_INDEX_URL=${PYPI_INDEX_URL} --build-arg PIP_PRE=${pip_pre} --build-arg BUILDOUT_ARGS='${BUILDOUT_ARGS}' .")
                 }
             }
 
