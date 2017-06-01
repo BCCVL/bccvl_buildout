@@ -11,7 +11,7 @@ node('docker') {
     def pip_pre = "True"
     if (params.BRANCH_NAME == 'master') {
         PYPI_INDEX_CRED = 'pypi_index_url_prod'
-        BUILDOUT_ARGS = 'always-checkout=false auto-checkout= '
+        BUILDOUT_ARGS = 'buildout:always-checkout=false buildout:auto-checkout= '
         pip_pre = "False"
     }
 
