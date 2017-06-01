@@ -7,9 +7,11 @@ node('docker') {
     def version = null
 
     def PYPI_INDEX_CRED = 'pypi_index_url_dev'
+    def BUILDOUT_ARGS = '-c develop.cfg'
     def pip_pre = "True"
-    if (env.BRANCH_NAME == 'master') {
+    if (env.BRANCH_NAME == 'feature/master_docker') {
         PYPI_INDEX_CRED = 'pypi_index_url_prod'
+        BUILDOUT_ARGS = 'always-checkout=false auto-checkout= '
         pip_pre = "False"
     }
 
@@ -26,7 +28,7 @@ node('docker') {
             withCredentials([string(credentialsId: PYPI_INDEX_CRED, variable: 'PYPI_INDEX_URL')]) {
                 docker.withRegistry('https://hub.bccvl.org.au', 'hub.bccvl.org.au') {
                     img = docker.build("${basename}:${imgversion}",
-                                       "--rm --pull --build-arg PIP_INDEX_URL=${PYPI_INDEX_URL} --build-arg PIP_PRE=${pip_pre} .")
+                                       "--rm --pull --build-arg PIP_INDEX_URL=${PYPI_INDEX_URL} --build-arg PIP_PRE=${pip_pre} BUILDOUT_ARGS='${BUILDOUT_ARGS}' .")
                 }
             }
             def gittag = getGitTag()

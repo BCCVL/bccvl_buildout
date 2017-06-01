@@ -6,6 +6,8 @@ ARG PIP_INDEX_URL
 ARG PIP_TRUSTED_HOST
 # If set, pip will look for pre releases
 ARG PIP_PRE
+# Arguments to pass on to buildout
+ARG BUILDOUT_ARGS
 
 
 # Setup environment variables
@@ -29,7 +31,7 @@ RUN mkdir -p $BCCVL_VAR && \
     pip install -r requirements-build.txt && \
     mkdir ~/.buildout && \
     echo -e "[buildout]\nindex = ${PIP_INDEX_URL}" > ~/.buildout/default.cfg && \
-    buildout && \
+    buildout ${BUILDOUT_ARGS} && \
 # compile all po files
     for po in $(find . -path '*/LC_MESSAGES/*.po'); do msgfmt -o ${po/%po/mo} $po; done && \
     chown -R ${BCCVL_USER}:${BCCVL_USER} $BCCVL_ETC && \
