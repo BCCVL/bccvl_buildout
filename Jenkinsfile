@@ -1,3 +1,8 @@
+properties([
+    buildDiscarder(logRotator(numToKeepStr: '20')),
+    disableConcurrentBuilds(),
+])
+
 node('docker') {
 
     try {
