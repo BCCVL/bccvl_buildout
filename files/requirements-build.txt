@@ -1,4 +1,4 @@
 zc.buildout==2.9.5
-setuptools==36.6.0
+setuptools==36.6.0.post20171109
 guscmversion
 scikit-image
