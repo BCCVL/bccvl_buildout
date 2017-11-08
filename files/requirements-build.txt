@@ -2,4 +2,3 @@ zc.buildout==2.9.5
 setuptools==36.6.0
 guscmversion
 scikit-image
-buildout.disablessl
