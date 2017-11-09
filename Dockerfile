@@ -19,27 +19,27 @@ ENV BCCVL_ETC /etc/opt/${BCCVL_USER}
 ENV TZ AEST-10
 
 # add bccvl user to image
-RUN groupadd -g 414 ${BCCVL_USER} && \
-    useradd -u 414 -g 414 -d ${BCCVL_HOME} -m -s /bin/bash ${BCCVL_USER}
+RUN groupadd -g 414 ${BCCVL_USER} \
+ && useradd -u 414 -g 414 -d ${BCCVL_HOME} -m -s /bin/bash ${BCCVL_USER}
 
 COPY files/ ${BCCVL_HOME}/
 
 WORKDIR ${BCCVL_HOME}
 
-RUN mkdir -p $BCCVL_VAR && \
-    mkdir -p $BCCVL_ETC && \
-    pip install -r requirements-build.txt && \
-    mkdir ~/.buildout && \
-    echo -e "[buildout]\nindex = ${PIP_INDEX_URL}" > ~/.buildout/default.cfg && \
-    buildout ${BUILDOUT_ARGS} && \
-# compile all po files
-    for po in $(find . -path '*/LC_MESSAGES/*.po'); do msgfmt -o ${po/%po/mo} $po; done && \
-    chown -R ${BCCVL_USER}:${BCCVL_USER} $BCCVL_ETC && \
-    chown -R ${BCCVL_USER}:${BCCVL_USER} $BCCVL_VAR && \
-# make sure all files and folders are accessible by bccvl user
-    find eggs -type f -exec chmod 644 {} + && \
-    find eggs -type d -exec chmod 755 {} + && \
-    rm -fr ~/.buildout
+RUN mkdir -p $BCCVL_VAR \
+ && mkdir -p $BCCVL_ETC \
+ && pip install -r requirements-build.txt \
+ && mkdir ~/.buildout \
+ && echo -e "[buildout]\nindex = ${PIP_INDEX_URL}" > ~/.buildout/default.cfg \
+ && buildout ${BUILDOUT_ARGS} \
+    `# compile all po files` \
+ && for po in $(find . -path '*/LC_MESSAGES/*.po'); do msgfmt -o ${po/%po/mo} $po; done \
+ && chown -R ${BCCVL_USER}:${BCCVL_USER} $BCCVL_ETC \
+ && chown -R ${BCCVL_USER}:${BCCVL_USER} $BCCVL_VAR \
+    `# make sure all files and folders are accessible by bccvl user` \
+ && find eggs -type f -exec chmod 644 {} + \
+ && find eggs -type d -exec chmod 755 {} + \
+ && rm -fr ~/.buildout
 
 ENV Z_CONFIG_FILE $BCCVL_HOME/parts/instance/etc/zope.conf
 ENV BCCVL_CONFIG ${BCCVL_HOME}/bccvl.ini
