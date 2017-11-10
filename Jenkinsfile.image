@@ -55,7 +55,7 @@ node('docker') {
                 // make sure we can write test results
                 sh 'chown -R ${BCCVL_USER} ${BCCVL_HOME}/parts/jenkins-test'
                 // run tests as bccvl user
-                sh 'cd ${BCCVL_HOME}; su -l ${BCCVL_USER} -c "CELERY_CONFIG_MODULE= ; xvfb-run -l -d ./bin/jenkins-test-coverage"'
+                sh 'cd ${BCCVL_HOME}; su -l ${BCCVL_USER} -c "CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage"'
 
                 // jenkins can't read test results from inside container ... so let's copy them into the workspace
                 sh 'cp -r ${BCCVL_HOME}/parts/jenkins-test .'
