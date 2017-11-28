@@ -100,6 +100,9 @@ node('docker') {
             // check if container starts up properly
             img.withRun() { bccvl ->
 
+                // give docker a chance to setup everything
+                sleep 5
+
                 def address = sh(script: "docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${bccvl.id}",
                                  returnStdout: true).trim()
 
