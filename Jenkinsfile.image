@@ -106,6 +106,8 @@ node('docker') {
                 def address = sh(script: "docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${bccvl.id}",
                                  returnStdout: true).trim()
 
+                sh "docker logs ${bccvl.id}"
+
                 img.inside("--add-host=bccvl:${address}") {
                     // curl returns exitcode 7 on connection refused .. server not yet ready
                     // let's retry a few times
