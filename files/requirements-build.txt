@@ -1,6 +1,6 @@
 zc.buildout==2.9.5
 # NOTE: patched setuptools version with proper ssl sni support, and
 #       no import problems with zope2
-setuptools==36.6.0.post20171109
+setuptools==36.0.1.post20171110
 guscmversion
 scikit-image
