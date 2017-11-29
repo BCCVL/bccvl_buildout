@@ -4,34 +4,28 @@ node('docker') {
     def basename = 'hub.bccvl.org.au/bccvl/bccvl'
     def imgversion = env.BUILD_NUMBER
     def img = null
-    def version = null
 
     def PYPI_INDEX_CRED = 'pypi_index_url_dev'
     def BUILDOUT_ARGS = '-c develop.cfg'
     def pip_pre = "True"
-    if (params.BRANCH_NAME == 'master') {
+    if (params.stage == 'prod') {
         PYPI_INDEX_CRED = 'pypi_index_url_prod'
-        BUILDOUT_ARGS = 'buildout:always-checkout=false buildout:auto-checkout= '
         pip_pre = "False"
     }
-
+    if (params.stage == 'rc' || params.stage == 'prod') {
+        // disable auto checkout in buildout
+        BUILDOUT_ARGS = 'buildout:always-checkout=false buildout:auto-checkout= '
+    }
 
     try {
 
         stage('Checkout') {
             sh(script: 'git clean -x -d -f -f -e "eggs"', returnStatus: true)
             checkout scm
+            imgversion = getGitVersion() + "-" + env.BUILD_NUMBER
         }
 
         stage('Build') {
-
-            def gittag = getGitTag()
-            if (gittag) {
-                // we are on a tag, so we don't allow pre-release pkgs
-                PYPI_INDEX_CRED = 'pypi_index_url_prod'
-            } else {
-                PYPI_INDEX_CRED = 'pypi_index_url_dev'
-            }
 
             withCredentials([string(credentialsId: PYPI_INDEX_CRED, variable: 'PYPI_INDEX_URL')]) {
                 docker.withRegistry('https://hub.bccvl.org.au', 'hub.bccvl.org.au') {
@@ -40,13 +34,6 @@ node('docker') {
                 }
             }
 
-            if (gittag) {
-                imgversion = gittag
-            } else {
-                imgversion = 'latest'
-            }
-
-            img = reTagImage(img, basename, imgversion)
         }
 
         stage('Test') {
@@ -150,11 +137,11 @@ node('docker') {
     }
     finally {
         stage('Cleanup') {
-            // TODO: shall we keep the image? ... probably not as docker won't detect changes in src folders and therefore
-            //       wouldn't rebuild with new sources
+            // clean git clone (removes all build files like virtualenv etc..)
+            sh 'git clean -x -d -f'
+
             if (img != null) {
-                // sh "docker rmi ${img.id}"
-                echo "${img.id}"
+                sh "docker rmi ${img.id}"
             }
         }
     }

@@ -71,7 +71,6 @@ CMD ["/cmd.sh"]
 
 #allow bulid of picked-version.cfg:
 #    - add newest=True and allow-pickedversion to buildout parameters ... print versions
-# in buildout.cfg .... Products.PrintingMailHost is a dev package
 # allow override / extension of buildout.cfg in dev env (to add dev packages)
 
 #dev tools:
