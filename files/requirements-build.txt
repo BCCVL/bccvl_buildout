@@ -1,0 +1,4 @@
+zc.buildout==2.9.5
+setuptools
+guscmversion
+scikit-image

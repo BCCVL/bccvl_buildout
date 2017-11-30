@@ -1,0 +1,149 @@
+node('docker') {
+
+
+    def basename = 'hub.bccvl.org.au/bccvl/bccvl'
+    def imgversion = env.BUILD_NUMBER
+    def img = null
+
+    def PYPI_INDEX_CRED = 'pypi_index_url_dev'
+    def BUILDOUT_ARGS = '-c develop.cfg'
+    def pip_pre = "True"
+    if (params.stage == 'prod') {
+        PYPI_INDEX_CRED = 'pypi_index_url_prod'
+        pip_pre = "False"
+    }
+    if (params.stage == 'rc' || params.stage == 'prod') {
+        // disable auto checkout in buildout
+        BUILDOUT_ARGS = 'buildout:always-checkout=false buildout:auto-checkout= '
+    }
+
+    try {
+
+        stage('Checkout') {
+            sh(script: 'git clean -x -d -f -f -e "eggs"', returnStatus: true)
+            checkout scm
+            imgversion = getGitVersion() + "-" + env.BUILD_NUMBER
+        }
+
+        stage('Build') {
+
+            withCredentials([string(credentialsId: PYPI_INDEX_CRED, variable: 'PYPI_INDEX_URL')]) {
+                docker.withRegistry('https://hub.bccvl.org.au', 'hub.bccvl.org.au') {
+                    img = docker.build("${basename}:${imgversion}",
+                                       "--rm --pull --build-arg PIP_INDEX_URL=${PYPI_INDEX_URL} --build-arg PIP_PRE=${pip_pre} --build-arg BUILDOUT_ARGS='${BUILDOUT_ARGS}' .")
+                }
+            }
+
+        }
+
+        stage('Test') {
+            // image inside runs within jenkins workspace mounted and workdir set to the workspace as well
+            img.inside('-u root:root -v /etc/machine-id:/etc/machine-id') {
+                // make sure we can write test results
+                sh 'chown -R ${BCCVL_USER} ${BCCVL_HOME}/parts/jenkins-test'
+                // run tests as bccvl user
+                sh 'cd ${BCCVL_HOME}; su -l ${BCCVL_USER} -c "CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage"'
+
+                // jenkins can't read test results from inside container ... so let's copy them into the workspace
+                sh 'cp -r ${BCCVL_HOME}/parts/jenkins-test .'
+                // and give jenkins ownership
+                sh 'chown -R 1000:1000 jenkins-test'
+            }
+            // capture test result
+            step([
+                $class: 'XUnitBuilder',
+                thresholds: [
+                    [$class: 'FailedThreshold', failureThreshold: '0',
+                                                unstableThreshold: '1']
+                ],
+                tools: [
+                    [$class: 'JUnitType', deleteOutputFiles: true,
+                                          failIfNotNew: true,
+                                          pattern: "jenkins-test/testreports/*.xml",
+                                          stopProcessingIfError: true]
+                ]
+            ])
+            // capture robot result
+            step([
+                $class: 'RobotPublisher',
+                outputPath: "jenkins-test",
+                outputFileName: 'robot_output.xml',
+                disableArchiveOutput: false,
+                reportFileName: 'robot_report.html',
+                logFileName: 'robot_log.html',
+                passThreshold: 90,
+                unstableThreshold: 100,
+                onlyCritical: false,
+                otherFiles: '',
+                enableCache: false
+            ])
+            // capture test coverage
+            // capture coverage report
+            step([$class: 'CoberturaPublisher',
+                  coberturaReportFile: 'jenkins-test/coverage.xml']
+            )
+
+
+            // check if container starts up properly
+            img.withRun() { bccvl ->
+
+                // give docker a chance to setup everything
+                sleep 5
+
+                def address = sh(script: "docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${bccvl.id}",
+                                 returnStdout: true).trim()
+
+                sh "docker logs ${bccvl.id}"
+
+                img.inside("--add-host=bccvl:${address}") {
+                    // curl returns exitcode 7 on connection refused .. server not yet ready
+                    // let's retry a few times
+                    def r = -1
+                    for (int i=0; i < 5 ; i++) {
+                        r = sh(script:'curl --fail --silent --show-error --retry 10 --retry-delay 5 http://bccvl:8080/ > /dev/null',
+                                   returnStatus: true)
+                        if (r == 0) {
+                            // all good
+                            break
+                        } else if (r == 7) {
+                            // connection refused; server not up yet?
+                            // wait and try again
+                            sleep 10
+                        } else {
+                            // something went wrong
+                            error('Build failed because test server did not start up correctly')
+                        }
+                    }
+                    if (r != 0) {
+                        error('Build failed, test server refused connection')
+                    }
+                }
+            }
+        }
+
+        stage('Publish') {
+            if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+                docker.withRegistry('https://hub.bccvl.org.au', 'hub.bccvl.org.au') {
+                    img.push()
+                }
+
+                slackSend color: 'good', message: "New Image ${img.id}\n${env.JOB_URL}"
+            }
+        }
+
+    }
+    catch (err) {
+        throw err
+    }
+    finally {
+        stage('Cleanup') {
+            // clean git clone (removes all build files like virtualenv etc..)
+            sh 'git clean -x -d -f'
+
+            if (img != null) {
+                sh "docker rmi ${img.id}"
+            }
+        }
+    }
+
+}
