@@ -1,4 +1,6 @@
 zc.buildout==2.9.5
-setuptools
+# setuptools >= 38.2.0 support installing wheels,
+#                      but zc.buildout 2.9.5 doesn't handle that behaviour
+setuptools==38.1.0
 guscmversion
 scikit-image
