@@ -10,6 +10,8 @@ if os.environ.get('BROKER_USE_SSL'):
       'certfile': os.environ.get('BROKER_USE_SSL_CERTFILE'),
     }
 
+BROKER_HEARTBEAT = 10
+
 ADMINS = [email for email in os.environ.get('ADMINS', 'g.weis@griffith.edu.au').split(' ') if email]
 
 CELERY_IMPORTS = [name for name in os.environ.get('CELERY_IMPORTS', '').split(' ') if name]
