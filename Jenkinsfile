@@ -27,7 +27,7 @@ node('docker') {
                     }
 
                     stage('Test') {
-                        sh '. ${VIRTUALENV}/bin/activate; cd files; CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage'
+                        sh '. ${VIRTUALENV}/bin/activate; cd files; export DISPLAY=:99; CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage'
 
                         // capture test result
                         step([
