@@ -14,7 +14,7 @@ node('docker') {
         }
 
         // start up build container
-        def img = docker.image('hub.bccvl.org.au/bccvl/bccvlbase:2017-12-04')
+        def img = docker.image('hub.bccvl.org.au/bccvl/bccvlbase:2018-02-07')
         docker.withRegistry('https://hub.bccvl.org.au', 'hub.bccvl.org.au') {
             img.inside('-v /etc/machine-id:/etc/machine-id') {
 
@@ -58,9 +58,7 @@ node('docker') {
                             enableCache: false
                         ])
                         // capture coverage report
-                        step([$class: 'CoberturaPublisher',
-                              coberturaReportFile: 'files/parts/jenkins-test/coverage.xml']
-                        )
+                        cobertura(coberturaReportFile: 'files/parts/jenkins-test/coverage.xml')
 
                     }
                 }
