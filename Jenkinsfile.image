@@ -16,6 +16,9 @@ node('docker') {
         // disable auto checkout in buildout
         BUILDOUT_ARGS = 'buildout:always-checkout=false buildout:auto-checkout= '
     }
+    if (params.stage == 'dev') {
+        imgversion = 'latest'
+    }
 
     try {
 
