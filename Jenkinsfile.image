@@ -25,7 +25,9 @@ node('docker') {
         stage('Checkout') {
             sh(script: 'git clean -x -d -f -f -e "eggs"', returnStatus: true)
             checkout scm
-            imgversion = getGitVersion() + "-" + env.BUILD_NUMBER
+            if (params.stage != 'dev') {
+                imgversion = getGitVersion() + "-" + env.BUILD_NUMBER
+            }
         }
 
         stage('Build') {
