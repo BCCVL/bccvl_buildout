@@ -6,17 +6,22 @@ node('docker') {
     def img = null
 
     def PYPI_INDEX_CRED = 'pypi_index_url_dev'
-    def BUILDOUT_ARGS = '-c develop.cfg'
+    def BUILDOUT_ARGS = ''
     def pip_pre = "True"
     if (params.stage == 'prod') {
         PYPI_INDEX_CRED = 'pypi_index_url_prod'
         pip_pre = "False"
     }
-    if (params.stage == 'rc' || params.stage == 'prod') {
+    if (params.stage == 'prod') {
         // disable auto checkout in buildout
-        BUILDOUT_ARGS = 'buildout:always-checkout=false buildout:auto-checkout= '
+        BUILDOUT_ARGS = 'buildout:always-checkout=false buildout:auto-checkout= buildout:update-versions-file=picked-versions.cfg'
+    }
+    if (params.stage == 'rc') {
+        // disable auto checkout in buildout
+        BUILDOUT_ARGS = 'buildout:always-checkout=false buildout:auto-checkout= buildout:prefer-final=false buildout:update-versions-file=picked-versions.cfg'
     }
     if (params.stage == 'dev') {
+        BUILDOUT_ARGS = '-c develop.cfg buildout:prefer-final=false buildout:update-versions-file=picked-versions.cfg'
         imgversion = 'latest'
     }
 
@@ -25,6 +30,7 @@ node('docker') {
         stage('Checkout') {
             sh(script: 'git clean -x -d -f -f -e "eggs"', returnStatus: true)
             checkout scm
+            // for rc and prod, generate git based version number
             if (params.stage != 'dev') {
                 imgversion = getGitVersion() + "-" + env.BUILD_NUMBER
             }
@@ -87,6 +93,8 @@ node('docker') {
             step([$class: 'CoberturaPublisher',
                   coberturaReportFile: 'jenkins-test/coverage.xml']
             )
+
+            archiveArtifacts artifacts: 'picked-versions.cfg', fingerprint: true, onlyIfSuccessful: false
 
 
             // check if container starts up properly
