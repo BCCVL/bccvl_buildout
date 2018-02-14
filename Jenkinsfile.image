@@ -57,8 +57,10 @@ node('docker') {
 
                 // jenkins can't read test results from inside container ... so let's copy them into the workspace
                 sh 'cp -r ${BCCVL_HOME}/parts/jenkins-test .'
+                // also copy artifacts we want to keep
+                sh 'cp ${BCCVL_HOME}/picked-versions.cfg .'
                 // and give jenkins ownership
-                sh 'chown -R 1000:1000 jenkins-test'
+                sh 'chown -R 1000:1000 jenkins-test picked-versions.cfg'
             }
             // capture test result
             step([
