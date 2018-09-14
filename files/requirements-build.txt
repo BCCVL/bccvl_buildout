@@ -3,4 +3,4 @@ zc.buildout==2.9.5
 #                      but zc.buildout 2.9.5 doesn't handle that behaviour
 setuptools==38.1.0
 pip==9.0.3
-scikit-image
+scikit-image==0.13.1
