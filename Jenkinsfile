@@ -30,19 +30,7 @@ node('docker') {
                         sh '. ${VIRTUALENV}/bin/activate; cd files; export DISPLAY=:99; CELERY_CONFIG_MODULE= ; xvfb-run -l -a ./bin/jenkins-test-coverage'
 
                         // capture test result
-                        step([
-                            $class: 'XUnitBuilder',
-                            thresholds: [
-                                [$class: 'FailedThreshold', failureThreshold: '0',
-                                                            unstableThreshold: '1']
-                            ],
-                            tools: [
-                                [$class: 'JUnitType', deleteOutputFiles: true,
-                                                      failIfNotNew: true,
-                                                      pattern: "files/parts/jenkins-test/testreports/*.xml",
-                                                      stopProcessingIfError: true]
-                            ]
-                        ])
+                        junit('files/parts/jenkins-test/testreports/*.xml')
                         // capture robot result
                         step([
                             $class: 'RobotPublisher',
