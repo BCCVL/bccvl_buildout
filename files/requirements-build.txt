@@ -4,4 +4,5 @@ zc.buildout==2.12.2
 setuptools
 pip
 matplotlib==2.0.0
+networkx==2.2
 scikit-image
