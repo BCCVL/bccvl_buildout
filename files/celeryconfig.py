@@ -12,6 +12,6 @@ if os.environ.get('BROKER_USE_SSL'):
 
 BROKER_HEARTBEAT = 10
 
-ADMINS = [email for email in os.environ.get('ADMINS', 'g.weis@griffith.edu.au').split(' ') if email]
+ADMINS = [email for email in os.environ.get('ADMINS', 'y.liaw@griffith.edu.au').split(' ') if email]
 
 CELERY_IMPORTS = [name for name in os.environ.get('CELERY_IMPORTS', '').split(' ') if name]
